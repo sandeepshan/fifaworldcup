@@ -115,42 +115,52 @@
     border:1px solid var(--border);
     padding:3px 9px; border-radius:20px;
   }
-  .hero-players {
-    display:flex; gap:8px; flex:1; justify-content:flex-end;
-    align-items:flex-end; overflow:hidden; z-index:1;
+  .pulse-strip {
+    display:flex; gap:10px; flex:1; justify-content:flex-end;
+    align-items:stretch; z-index:1; flex-wrap:nowrap;
   }
-  .hero-player-card {
-    position:relative; width:80px; border-radius:10px; overflow:hidden;
+  .pulse-tile {
+    position:relative; min-width:96px; border-radius:12px; padding:12px 14px;
+    background:linear-gradient(160deg, rgba(240,192,64,0.08), rgba(255,255,255,0.02));
     border:1px solid rgba(240,192,64,0.18);
-    background:var(--surface2); flex-shrink:0;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    gap:2px; overflow:hidden;
     animation: heroCardIn 0.5s var(--delay,0s) both;
     transition: transform 0.25s, border-color 0.2s, box-shadow 0.25s;
-    cursor:default;
   }
-  .hero-player-card:hover {
-    transform:translateY(-8px) scale(1.05);
+  .pulse-tile:hover {
+    transform:translateY(-6px);
     border-color:var(--gold);
-    box-shadow: 0 12px 32px rgba(240,192,64,0.25);
-    z-index:2;
+    box-shadow: 0 12px 32px rgba(240,192,64,0.2);
   }
-  .hero-player-card--big { width:94px; }
+  .pulse-tile::before {
+    content:''; position:absolute; top:-30%; right:-30%; width:80px; height:80px;
+    background:radial-gradient(circle, rgba(240,192,64,0.15), transparent 70%);
+    pointer-events:none;
+  }
+  .pulse-icon { font-size:18px; margin-bottom:2px; }
+  .pulse-val {
+    font-family:'Bebas Neue',cursive; font-size:26px; line-height:1;
+    color:var(--gold); letter-spacing:0.5px;
+  }
+  .pulse-val.small { font-size:15px; letter-spacing:0; }
+  .pulse-lbl {
+    font-size:9px; text-transform:uppercase; letter-spacing:1px;
+    color:rgba(255,255,255,0.5); text-align:center; margin-top:1px;
+  }
+  .pulse-tile--live {
+    border-color:rgba(239,68,68,0.4);
+    background:linear-gradient(160deg, rgba(239,68,68,0.1), rgba(255,255,255,0.02));
+  }
+  .pulse-tile--live .pulse-val { color:var(--red); }
+  .pulse-live-dot {
+    width:6px; height:6px; background:var(--red); border-radius:50%;
+    display:inline-block; animation:pulse 1.5s infinite; margin-right:4px;
+  }
   @keyframes heroCardIn {
     from { opacity:0; transform:translateY(24px); }
     to   { opacity:1; transform:translateY(0); }
   }
-  .hero-player-img {
-    width:100%; height:112px;
-    object-fit:cover; object-position:top center;
-    display:block; background:var(--surface2);
-  }
-  .hero-player-card--big .hero-player-img { height:132px; }
-  .hero-player-info {
-    padding:6px 7px 7px;
-    background:linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 60%, transparent 100%);
-    position:absolute; bottom:0; left:0; right:0;
-  }
-  .hero-player-name { display:block; font-family:'Bebas Neue',cursive; font-size:12px; letter-spacing:1px; color:var(--gold); line-height:1; }
-  .hero-player-nat  { display:block; font-size:9px; color:rgba(255,255,255,0.55); margin-top:2px; }
 
   .live-badge {
     display:flex; align-items:center; gap:6px;
@@ -1414,6 +1424,7 @@
   <ellipse cx="42" cy="34" rx="5" ry="4" fill="rgba(255,255,240,0.25)" transform="rotate(-20,42,34)"/>
 </svg>
       <div class="hero-trophy-glow"></div>
+
     </div>
     <div class="hero-title-wrap">
       <div class="hero-eyebrow">FIFA</div>
@@ -1427,22 +1438,26 @@
       </div>
     </div>
   </div>
-  <div class="hero-players">
-    <div class="hero-player-card" style="--delay:0s">
-      <img class="hero-player-img" src="https://a.espncdn.com/i/headshots/soccer/players/full/45843.png" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJoZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzFhM2E2YiIvPgogICAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzBkMjA0NSIvPgogICAgICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICAgICAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNjAiIGZpbGw9InVybCgjaGcpIi8+CiAgICAgIDxjaXJjbGUgY3g9IjUwIiBjeT0iNDUiIHI9IjIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTMpIi8+CiAgICAgIDxwYXRoIGQ9Ik0xMCwxNjAgUTE1LDEwNSAzMCw5NiBRNDAsOTAgNTAsOTAgUTYwLDkwIDcwLDk2IFE4NSwxMDUgOTAsMTYwIFoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPgogICAgICA8dGV4dCB4PSI1MCIgeT0iODgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzIiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zKSIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrIj4xMDwvdGV4dD4KICAgIDwvc3ZnPg=='" alt="Messi">
-      <div class="hero-player-info"><span class="hero-player-name">MESSI</span><span class="hero-player-nat">🇦🇷 Argentina</span></div>
+  <div class="pulse-strip" id="pulse-strip">
+    <div class="pulse-tile" style="--delay:0s">
+      <div class="pulse-icon">⚽</div>
+      <div class="pulse-val" id="pulse-goals">–</div>
+      <div class="pulse-lbl">Goals Scored</div>
     </div>
-    <div class="hero-player-card hero-player-card--big" style="--delay:0.1s">
-      <img class="hero-player-img" src="https://a.espncdn.com/i/headshots/soccer/players/full/224096.png" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJoZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwMWY2YiIvPgogICAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwMGMzMCIvPgogICAgICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICAgICAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNjAiIGZpbGw9InVybCgjaGcpIi8+CiAgICAgIDxjaXJjbGUgY3g9IjUwIiBjeT0iNDUiIHI9IjIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTMpIi8+CiAgICAgIDxwYXRoIGQ9Ik0xMCwxNjAgUTE1LDEwNSAzMCw5NiBRNDAsOTAgNTAsOTAgUTYwLDkwIDcwLDk2IFE4NSwxMDUgOTAsMTYwIFoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPgogICAgICA8dGV4dCB4PSI1MCIgeT0iODgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzIiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zKSIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrIj4xMDwvdGV4dD4KICAgIDwvc3ZnPg=='" alt="Mbappé">
-      <div class="hero-player-info"><span class="hero-player-name">MBAPPÉ</span><span class="hero-player-nat">🇫🇷 France</span></div>
+    <div class="pulse-tile" style="--delay:0.1s">
+      <div class="pulse-icon">🔥</div>
+      <div class="pulse-val small" id="pulse-top-group">–</div>
+      <div class="pulse-lbl">Hottest Group</div>
     </div>
-    <div class="hero-player-card" style="--delay:0.2s">
-      <img class="hero-player-img" src="https://a.espncdn.com/i/headshots/soccer/players/full/328054.png" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJoZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzliMWExYSIvPgogICAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzVjMDAwMCIvPgogICAgICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICAgICAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNjAiIGZpbGw9InVybCgjaGcpIi8+CiAgICAgIDxjaXJjbGUgY3g9IjUwIiBjeT0iNDUiIHI9IjIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTMpIi8+CiAgICAgIDxwYXRoIGQ9Ik0xMCwxNjAgUTE1LDEwNSAzMCw5NiBRNDAsOTAgNTAsOTAgUTYwLDkwIDcwLDk2IFE4NSwxMDUgOTAsMTYwIFoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPgogICAgICA8dGV4dCB4PSI1MCIgeT0iODgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzIiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zKSIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrIj4xMDwvdGV4dD4KICAgIDwvc3ZnPg=='" alt="Bellingham">
-      <div class="hero-player-info"><span class="hero-player-name">BELLINGHAM</span><span class="hero-player-nat">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</span></div>
+    <div class="pulse-tile pulse-tile--live" style="--delay:0.2s" id="pulse-live-tile">
+      <div class="pulse-icon">📍</div>
+      <div class="pulse-val small" id="pulse-next">–</div>
+      <div class="pulse-lbl">Up Next</div>
     </div>
-    <div class="hero-player-card" style="--delay:0.3s">
-      <img class="hero-player-img" src="https://a.espncdn.com/i/headshots/soccer/players/full/352866.png" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgPGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJoZyIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwNWMxZiIvPgogICAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwMmUxMCIvPgogICAgICA8L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KICAgICAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNjAiIGZpbGw9InVybCgjaGcpIi8+CiAgICAgIDxjaXJjbGUgY3g9IjUwIiBjeT0iNDUiIHI9IjIyIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTMpIi8+CiAgICAgIDxwYXRoIGQ9Ik0xMCwxNjAgUTE1LDEwNSAzMCw5NiBRNDAsOTAgNTAsOTAgUTYwLDkwIDcwLDk2IFE4NSwxMDUgOTAsMTYwIFoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPgogICAgICA8dGV4dCB4PSI1MCIgeT0iODgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzIiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zKSIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrIj43PC90ZXh0PgogICAgPC9zdmc+'" alt="Vinicius">
-      <div class="hero-player-info"><span class="hero-player-name">VINICIUS JR</span><span class="hero-player-nat">🇧🇷 Brazil</span></div>
+    <div class="pulse-tile" style="--delay:0.3s">
+      <div class="pulse-icon">🏆</div>
+      <div class="pulse-val" id="pulse-days">–</div>
+      <div class="pulse-lbl">Days to Final</div>
     </div>
   </div>
   <div class="live-badge" id="stage-badge">
@@ -2960,10 +2975,69 @@ function getLiveScore(home, away) {
 // ─── APPLY TO UI ─────────────────────────────────────────────────────────────
 function applyLiveDataToUI() {
   updateStatCards();
+  updatePulseStrip();
   renderFixtures();
   renderGroups();
   updateNextMatch();
   renderLiveMatchWidget();
+}
+
+// ─── TOURNAMENT PULSE STRIP ───────────────────────────────────────────────────
+// Replaces the old static player headshot cards with live, data-driven tiles.
+// Everything here is computed from data already in memory — no new fetches,
+// no broken images, and it can never go stale relative to a knocked-out player.
+function updatePulseStrip() {
+  function el(id){return document.getElementById(id);}
+  var scores = Object.values(liveState.liveScores);
+
+  // Total goals (reuse the same figure as the main stat card)
+  var goals = scores.filter(function(s){return s.homeScore!==null;})
+    .reduce(function(a,s){return a+(s.homeScore||0)+(s.awayScore||0);},0);
+  if (el('pulse-goals')) el('pulse-goals').textContent = goals;
+
+  // Hottest group: highest combined goals among groups with at least 1 match played
+  var groupGoals = {};
+  Object.keys(GROUPS).forEach(function(g){ groupGoals[g] = 0; });
+  ALL_FIXTURES.filter(function(f){return f.stage==='Group';}).forEach(function(f){
+    var ls = getLiveScore(f.home, f.away);
+    if (ls && ls.status==='FINISHED' && ls.homeScore!==null) {
+      groupGoals[f.group] = (groupGoals[f.group]||0) + ls.homeScore + ls.awayScore;
+    }
+  });
+  var topGroup = Object.entries(groupGoals).sort(function(a,b){return b[1]-a[1];})[0];
+  if (el('pulse-top-group')) {
+    el('pulse-top-group').textContent = topGroup && topGroup[1] > 0
+      ? 'Group ' + topGroup[0] + ' (' + topGroup[1] + ')'
+      : '—';
+  }
+
+  // Up next / live now
+  var now = Date.now();
+  var liveMatch = scores.find(function(s){return s.status==='IN_PLAY'||s.status==='PAUSED';});
+  var liveTile = el('pulse-live-tile');
+  if (liveMatch) {
+    if (el('pulse-next')) el('pulse-next').textContent = liveMatch.home + ' v ' + liveMatch.away;
+    var lbl = liveTile && liveTile.querySelector('.pulse-lbl');
+    var icon = liveTile && liveTile.querySelector('.pulse-icon');
+    if (lbl) lbl.innerHTML = '<span class="pulse-live-dot"></span>LIVE NOW';
+    if (icon) icon.textContent = '🔴';
+  } else {
+    var sorted = ALL_FIXTURES.slice().sort(function(a,b){return a.aestMs-b.aestMs;});
+    var next = sorted.find(function(f){
+      var ls = getLiveScore(f.home, f.away);
+      return !(ls && ls.status==='FINISHED') && f.aestMs > now - 2*3600*1000;
+    });
+    if (el('pulse-next')) el('pulse-next').textContent = next ? (next.home + ' v ' + next.away) : '—';
+    var lbl2 = liveTile && liveTile.querySelector('.pulse-lbl');
+    var icon2 = liveTile && liveTile.querySelector('.pulse-icon');
+    if (lbl2) lbl2.textContent = 'Up Next';
+    if (icon2) icon2.textContent = '📍';
+  }
+
+  // Days to final
+  var finalMs = Date.UTC(2026,6,19,19,0);
+  var days = Math.ceil((finalMs-now)/86400000);
+  if (el('pulse-days')) el('pulse-days').textContent = days>0 ? days : '🏆';
 }
 
 function updateStatCards() {
@@ -3450,6 +3524,7 @@ function init() {
   renderLiveMatchWidget();  // show recent results immediately from KNOWN_RESULTS
   updateNextMatch();
   updateStatCards();
+  updatePulseStrip();
   initSimulator();
   initParticles();
   renderStarFlags();
@@ -3508,6 +3583,7 @@ async function autoRefreshResults() {
   renderGroups();
   renderLiveMatchWidget();
   updateStatCards();
+  updatePulseStrip();
   const el = document.getElementById('api-last-updated');
   const t = new Date().toLocaleTimeString('en-AU', {hour:'2-digit', minute:'2-digit'});
   if (el) el.textContent = 'Auto-updated ' + t;
