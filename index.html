@@ -995,12 +995,11 @@
     background: linear-gradient(135deg, #0d1525 0%, #111827 50%, #0d1525 100%);
     border: 1px solid rgba(240,192,64,0.35);
     border-radius: 14px;
-    padding: 18px 28px;
+    padding: 16px 24px;
     margin-bottom: 20px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+    flex-direction: column;
+    gap: 4px;
     position: relative;
     overflow: hidden;
   }
@@ -1082,18 +1081,13 @@
      row instead of only the first one being shown */
   .next-match-row {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; padding: 10px 0;
+    gap: 16px; padding: 8px 0;
   }
   .next-match-row + .next-match-row {
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(240,192,64,0.15);
   }
   .next-match-row .next-teams { margin: 0; }
   .next-match-row .next-time { margin: 0; }
-  .next-match-simul-tag {
-    font-size: 10px; color: var(--gold); text-transform: uppercase;
-    letter-spacing: 0.5px; text-align: center; margin-bottom: 4px;
-    opacity: 0.85;
-  }
 
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1411,6 +1405,11 @@
       padding: 14px 16px;
     }
     .next-team { justify-content: center !important; }
+    .next-match-row {
+      flex-direction: column; align-items: stretch; gap: 8px;
+      padding: 10px 0;
+    }
+    .next-match-row .next-time { text-align: center; }
 
     /* Live match widget cards: keep the 3-col grid but shrink gaps/text
        so long team names don't force horizontal overflow */
@@ -3169,15 +3168,22 @@ function updatePulseStrip() {
       : '—';
   }
 
-  // Up next / live now
+  // Up next / live now — check for MULTIPLE simultaneous matches, not just
+  // the first one .find() would return (group-stage finales always
+  // schedule 2+ matches at the identical kickoff time)
   var now = Date.now();
-  var liveMatch = scores.find(function(s){return s.status==='IN_PLAY'||s.status==='PAUSED';});
+  var liveMatches = scores.filter(function(s){return s.status==='IN_PLAY'||s.status==='PAUSED';});
   var liveTile = el('pulse-live-tile');
-  if (liveMatch) {
-    if (el('pulse-next')) el('pulse-next').textContent = liveMatch.home + ' v ' + liveMatch.away;
+  if (liveMatches.length > 0) {
     var lbl = liveTile && liveTile.querySelector('.pulse-lbl');
     var icon = liveTile && liveTile.querySelector('.pulse-icon');
-    if (lbl) lbl.innerHTML = '<span class="pulse-live-dot"></span>LIVE NOW';
+    if (liveMatches.length === 1) {
+      if (el('pulse-next')) el('pulse-next').textContent = liveMatches[0].home + ' v ' + liveMatches[0].away;
+      if (lbl) lbl.innerHTML = '<span class="pulse-live-dot"></span>LIVE NOW';
+    } else {
+      if (el('pulse-next')) el('pulse-next').textContent = liveMatches.length + ' matches live';
+      if (lbl) lbl.innerHTML = '<span class="pulse-live-dot"></span>LIVE NOW';
+    }
     if (icon) icon.textContent = '🔴';
   } else {
     var sorted = ALL_FIXTURES.slice().sort(function(a,b){return a.aestMs-b.aestMs;});
@@ -3185,9 +3191,19 @@ function updatePulseStrip() {
       var ls = getLiveScore(f.home, f.away);
       return !(ls && ls.status==='FINISHED') && f.aestMs > now - 2*3600*1000;
     });
-    if (el('pulse-next')) el('pulse-next').textContent = next ? (next.home + ' v ' + next.away) : '—';
+    var simultaneousCount = next ? sorted.filter(function(f){
+      var ls = getLiveScore(f.home, f.away);
+      return f.aestMs === next.aestMs && !(ls && ls.status==='FINISHED');
+    }).length : 0;
     var lbl2 = liveTile && liveTile.querySelector('.pulse-lbl');
     var icon2 = liveTile && liveTile.querySelector('.pulse-icon');
+    if (!next) {
+      if (el('pulse-next')) el('pulse-next').textContent = '—';
+    } else if (simultaneousCount > 1) {
+      if (el('pulse-next')) el('pulse-next').textContent = simultaneousCount + ' matches';
+    } else {
+      if (el('pulse-next')) el('pulse-next').textContent = next.home + ' v ' + next.away;
+    }
     if (lbl2) lbl2.textContent = 'Up Next';
     if (icon2) icon2.textContent = '📍';
   }
