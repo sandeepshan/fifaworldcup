@@ -1077,6 +1077,24 @@
 
   .countdown { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--green); margin-top: 2px; }
 
+  /* Multi-match support — when 2+ matches share the same kickoff time
+     (always true for the final round of each group), each gets its own
+     row instead of only the first one being shown */
+  .next-match-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: 10px 0;
+  }
+  .next-match-row + .next-match-row {
+    border-top: 1px solid var(--border);
+  }
+  .next-match-row .next-teams { margin: 0; }
+  .next-match-row .next-time { margin: 0; }
+  .next-match-simul-tag {
+    font-size: 10px; color: var(--gold); text-transform: uppercase;
+    letter-spacing: 0.5px; text-align: center; margin-bottom: 4px;
+    opacity: 0.85;
+  }
+
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -1607,8 +1625,7 @@
 
     <div class="next-match" id="next-match-banner">
       <div class="next-label" id="next-match-label">⚡ NEXT MATCH</div>
-      <div class="next-teams" id="next-match-teams"></div>
-      <div class="next-time" id="next-match-time"></div>
+      <div id="next-match-list"></div>
     </div>
 
     <div class="filters" id="fixture-filters">
@@ -2218,8 +2235,7 @@ function updateNextMatch() {
 
   const banner  = document.getElementById('next-match-banner');
   const labelEl = document.getElementById('next-match-label');
-  const teamsEl = document.getElementById('next-match-teams');
-  const timeEl  = document.getElementById('next-match-time');
+  const listEl  = document.getElementById('next-match-list');
   const dlEl    = document.getElementById('days-left');
 
   // Sort all fixtures chronologically
@@ -2248,17 +2264,16 @@ function updateNextMatch() {
     return f.aestMs <= now && now < f.aestMs + 115 * 60 * 1000;
   }
 
-  // Find live match (in progress right now)
-  const liveMatch = sorted.find(isLiveNow);
+  // Find ALL matches currently live (not just the first — group-stage final
+  // rounds always schedule 2+ matches at the exact same kickoff time)
+  const liveMatches = sorted.filter(isLiveNow);
 
-  // Find next match (first one that hasn't started and isn't finished)
-  const nextMatch = sorted.find(f => !isFinished(f) && !isLiveNow(f) && f.aestMs > now);
-
-  // IMPORTANT: live-match-widget (above) already shows the live match with
-  // its own "LIVE NOW" section. This banner should never duplicate that —
-  // it only shows the upcoming "next match" countdown. If something is
-  // live right now, just hide this banner entirely.
-  if (liveMatch) {
+  // IMPORTANT: live-match-widget (above) already shows live matches with
+  // its own "LIVE NOW" section, and it correctly shows ALL of them via
+  // .filter()/.forEach(). This banner should never duplicate that — it
+  // only shows the upcoming "next match" countdown. If anything is live
+  // right now, just hide this banner entirely.
+  if (liveMatches.length > 0) {
     if (banner) banner.style.display = 'none';
     const finalMs  = Date.UTC(2026, 6, 19, 19, 0);
     const daysLeft = Math.ceil((finalMs - now) / 86400000);
@@ -2266,29 +2281,30 @@ function updateNextMatch() {
     return;
   }
 
-  const showMatch = nextMatch;
+  // Find the next upcoming match, then find EVERY match sharing that exact
+  // same kickoff time — not just the first one .find() would return.
+  const nextMatch = sorted.find(f => !isFinished(f) && !isLiveNow(f) && f.aestMs > now);
 
-  if (!showMatch) {
+  if (!nextMatch) {
     if (banner) banner.style.display = 'none';
     if (dlEl) dlEl.textContent = '🏆';
     return;
   }
 
+  const simultaneous = sorted.filter(f =>
+    f.aestMs === nextMatch.aestMs && !isFinished(f) && !isLiveNow(f)
+  );
+
   if (banner) banner.style.display = '';
 
   if (labelEl) {
-    labelEl.innerHTML = '⚡ NEXT MATCH';
+    labelEl.innerHTML = simultaneous.length > 1
+      ? '⚡ NEXT MATCHES (' + simultaneous.length + ' SIMULTANEOUS)'
+      : '⚡ NEXT MATCH';
   }
 
-  if (teamsEl) {
-    teamsEl.innerHTML =
-      '<div class="next-team">' + tf(showMatch.home, 24) + '<span>' + showMatch.home + '</span>' + rankBadge(showMatch.home) + '</div>' +
-      '<div class="next-vs">VS</div>' +
-      '<div class="next-team">' + tf(showMatch.away, 24) + '<span>' + showMatch.away + '</span>' + rankBadge(showMatch.away) + '</div>';
-  }
-
-  if (timeEl) {
-    const diff  = showMatch.aestMs - now;
+  if (listEl) {
+    const diff  = nextMatch.aestMs - now;
     const hours = Math.floor(diff / 3600000);
     const mins  = Math.floor((diff % 3600000) / 60000);
     const secs  = Math.floor((diff % 60000) / 1000);
@@ -2296,10 +2312,21 @@ function updateNextMatch() {
                     : hours >= 1      ? hours + 'h ' + mins + 'm'
                     : mins >= 1       ? mins + 'm ' + secs + 's'
                     : 'Starting now';
-    timeEl.innerHTML =
-      '<div class="t">' + showMatch.aestTime + ' AEST</div>' +
-      '<div class="d">' + showMatch.aestDay + ', ' + showMatch.aestDate + '</div>' +
-      '<div class="countdown">In ' + countdown + '</div>';
+
+    listEl.innerHTML = simultaneous.map(m =>
+      '<div class="next-match-row">' +
+        '<div class="next-teams">' +
+          '<div class="next-team">' + tf(m.home, 24) + '<span>' + m.home + '</span>' + rankBadge(m.home) + '</div>' +
+          '<div class="next-vs">VS</div>' +
+          '<div class="next-team">' + tf(m.away, 24) + '<span>' + m.away + '</span>' + rankBadge(m.away) + '</div>' +
+        '</div>' +
+        '<div class="next-time">' +
+          '<div class="t">' + m.aestTime + ' AEST</div>' +
+          '<div class="d">' + m.aestDay + ', ' + m.aestDate + '</div>' +
+          '<div class="countdown">In ' + countdown + '</div>' +
+        '</div>' +
+      '</div>'
+    ).join('');
   }
 
   const finalMs  = Date.UTC(2026, 6, 19, 19, 0);
