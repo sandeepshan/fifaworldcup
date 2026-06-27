@@ -2000,6 +2000,55 @@ const ALL_FIXTURES = [
   {date:'2026-06-27',etH:19,etM:30,group:'K',home:'DR Congo',away:'Uzbekistan',homeFlag:'cd',awayFlag:'uz',venue:'Atlanta Stadium, Atlanta',stage:'Group'},
   {date:'2026-06-27',etH:22,etM:0,group:'J',home:'Algeria',away:'Austria',homeFlag:'dz',awayFlag:'at',venue:'Kansas City Stadium, Kansas City',stage:'Group'},
   {date:'2026-06-27',etH:22,etM:0,group:'J',home:'Jordan',away:'Argentina',homeFlag:'jo',awayFlag:'ar',venue:'Dallas Stadium, Dallas',stage:'Group'},
+
+  // ── KNOCKOUT STAGE ──────────────────────────────────────────────────────
+  // Round of 32: confirmed teams from completed groups (A-F, H, I) are real
+  // names; everything depending on Groups G, J, K, L (still in progress) or
+  // on the cross-group "best 8 third-placed teams" ranking is marked TBC,
+  // since that ranking cannot be finalized until all 12 groups finish.
+  // Dates/venues/kickoff times verified against the live API and FIFA's
+  // official published schedule — only the not-yet-determined team names
+  // are placeholders.
+  {apiId:537417,date:'2026-06-28',etH:15,etM:0,group:null,home:'South Africa',away:'Canada',homeFlag:'za',awayFlag:'ca',venue:'Los Angeles Stadium, Inglewood',stage:'Round of 32'},
+  {apiId:537423,date:'2026-06-29',etH:13,etM:0,group:null,home:'Brazil',away:'Japan',homeFlag:'br',awayFlag:'jp',venue:'NRG Stadium, Houston',stage:'Round of 32'},
+  {apiId:537415,date:'2026-06-29',etH:16,etM:30,group:null,home:'Germany',away:'TBC (Best 3rd: A/B/C/D/F)',homeFlag:'de',awayFlag:null,venue:'Gillette Stadium, Foxborough',stage:'Round of 32'},
+  {apiId:537418,date:'2026-06-29',etH:21,etM:0,group:null,home:'Netherlands',away:'Morocco',homeFlag:'nl',awayFlag:'ma',venue:'Estadio Monterrey, Monterrey',stage:'Round of 32'},
+  {apiId:537424,date:'2026-06-30',etH:13,etM:0,group:null,home:'France',away:'TBC (Best 3rd: C/D/F/G/H)',homeFlag:'fr',awayFlag:null,venue:'MetLife Stadium, East Rutherford',stage:'Round of 32'},
+  {apiId:537416,date:'2026-06-30',etH:17,etM:0,group:null,home:'Ivory Coast',away:'Norway',homeFlag:'ci',awayFlag:'no',venue:'AT&T Stadium, Arlington',stage:'Round of 32'},
+  {apiId:537425,date:'2026-06-30',etH:21,etM:0,group:null,home:'Mexico',away:'TBC (Best 3rd: C/E/F/H/I)',homeFlag:'mx',awayFlag:null,venue:'Estadio Azteca, Mexico City',stage:'Round of 32'},
+  {apiId:537426,date:'2026-07-01',etH:12,etM:0,group:null,home:'TBC (Group G Winner)',away:'TBC (Best 3rd: A/E/H/I/J)',homeFlag:null,awayFlag:null,venue:'Lumen Field, Seattle',stage:'Round of 32'},
+  {apiId:537422,date:'2026-07-01',etH:16,etM:0,group:null,home:'TBC (Group L Winner)',away:'TBC (Best 3rd: E/H/I/J/K)',homeFlag:null,awayFlag:null,venue:'Mercedes-Benz Stadium, Atlanta',stage:'Round of 32'},
+  {apiId:537421,date:'2026-07-01',etH:20,etM:0,group:null,home:'United States',away:'Bosnia & Herz.',homeFlag:'us',awayFlag:'ba',venue:'San Francisco Bay Area Stadium, Santa Clara',stage:'Round of 32'},
+  {apiId:537420,date:'2026-07-02',etH:15,etM:0,group:null,home:'Spain',away:'TBC (Group J Runner-up)',homeFlag:'es',awayFlag:null,venue:'SoFi Stadium, Inglewood',stage:'Round of 32'},
+  {apiId:537419,date:'2026-07-02',etH:19,etM:0,group:null,home:'TBC (Group K Runner-up)',away:'TBC (Group L Runner-up)',homeFlag:null,awayFlag:null,venue:'Toronto Stadium, Toronto',stage:'Round of 32'},
+  {apiId:537429,date:'2026-07-02',etH:23,etM:0,group:null,home:'Switzerland',away:'TBC (Best 3rd: E/F/G/I/J)',homeFlag:'ch',awayFlag:null,venue:'Vancouver Stadium, Vancouver',stage:'Round of 32'},
+  {apiId:537428,date:'2026-07-03',etH:14,etM:0,group:null,home:'Australia',away:'TBC (Group G Runner-up)',homeFlag:'au',awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Round of 32'},
+  {apiId:537427,date:'2026-07-03',etH:18,etM:0,group:null,home:'Argentina',away:'TBC (Group H Runner-up)',homeFlag:'ar',awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Round of 32'},
+  {apiId:537430,date:'2026-07-03',etH:21,etM:30,group:null,home:'TBC (Group K Winner)',away:'TBC (Best 3rd: D/E/I/J/L)',homeFlag:null,awayFlag:null,venue:'Arrowhead Stadium, Kansas City',stage:'Round of 32'},
+
+  // Round of 16 — all teams TBC (depend on Round of 32 results, July 3)
+  {apiId:537376,date:'2026-07-04',etH:13,etM:0,group:null,home:'TBC (R32 Match 1 Winner)',away:'TBC (R32 Match 3 Winner)',homeFlag:null,awayFlag:null,venue:'NRG Stadium, Houston',stage:'Round of 16'},
+  {apiId:537375,date:'2026-07-04',etH:17,etM:0,group:null,home:'TBC (R32 Match 4 Winner)',away:'TBC (R32 Match 6 Winner)',homeFlag:null,awayFlag:null,venue:'Philadelphia Stadium, Philadelphia',stage:'Round of 16'},
+  {apiId:537377,date:'2026-07-05',etH:16,etM:0,group:null,home:'TBC (R32 Match 5 Winner)',away:'TBC (R32 Match 9 Winner)',homeFlag:null,awayFlag:null,venue:'MetLife Stadium, East Rutherford',stage:'Round of 16'},
+  {apiId:537378,date:'2026-07-05',etH:20,etM:0,group:null,home:'TBC (R32 Match 7 Winner)',away:'TBC (R32 Match 2 Winner)',homeFlag:null,awayFlag:null,venue:'Estadio Azteca, Mexico City',stage:'Round of 16'},
+  {apiId:537379,date:'2026-07-06',etH:15,etM:0,group:null,home:'TBC (R32 Match 10 Winner)',away:'TBC (R32 Match 13 Winner)',homeFlag:null,awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Round of 16'},
+  {apiId:537380,date:'2026-07-06',etH:20,etM:0,group:null,home:'TBC (R32 Match 8 Winner)',away:'TBC (R32 Match 11 Winner)',homeFlag:null,awayFlag:null,venue:'Lumen Field, Seattle',stage:'Round of 16'},
+  {apiId:537381,date:'2026-07-07',etH:12,etM:0,group:null,home:'TBC (R32 Match 15 Winner)',away:'TBC (R32 Match 16 Winner)',homeFlag:null,awayFlag:null,venue:'Mercedes-Benz Stadium, Atlanta',stage:'Round of 16'},
+  {apiId:537382,date:'2026-07-07',etH:16,etM:0,group:null,home:'TBC (R32 Match 12 Winner)',away:'TBC (R32 Match 14 Winner)',homeFlag:null,awayFlag:null,venue:'BC Place, Vancouver',stage:'Round of 16'},
+
+  // Quarter-Finals — all teams TBC (depend on Round of 16 results, July 7)
+  {apiId:537383,date:'2026-07-09',etH:16,etM:0,group:null,home:'TBC (R16 Match 1 Winner)',away:'TBC (R16 Match 2 Winner)',homeFlag:null,awayFlag:null,venue:'Gillette Stadium, Foxborough',stage:'Quarter-Final'},
+  {apiId:537384,date:'2026-07-10',etH:15,etM:0,group:null,home:'TBC (R16 Match 3 Winner)',away:'TBC (R16 Match 4 Winner)',homeFlag:null,awayFlag:null,venue:'SoFi Stadium, Inglewood',stage:'Quarter-Final'},
+  {apiId:537385,date:'2026-07-11',etH:17,etM:0,group:null,home:'TBC (R16 Match 5 Winner)',away:'TBC (R16 Match 6 Winner)',homeFlag:null,awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Quarter-Final'},
+  {apiId:537386,date:'2026-07-11',etH:21,etM:0,group:null,home:'TBC (R16 Match 7 Winner)',away:'TBC (R16 Match 8 Winner)',homeFlag:null,awayFlag:null,venue:'Arrowhead Stadium, Kansas City',stage:'Quarter-Final'},
+
+  // Semi-Finals — all teams TBC (depend on Quarter-Final results, July 11)
+  {apiId:537387,date:'2026-07-14',etH:15,etM:0,group:null,home:'TBC (QF 1 Winner)',away:'TBC (QF 2 Winner)',homeFlag:null,awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Semi-Final'},
+  {apiId:537388,date:'2026-07-15',etH:15,etM:0,group:null,home:'TBC (QF 3 Winner)',away:'TBC (QF 4 Winner)',homeFlag:null,awayFlag:null,venue:'Mercedes-Benz Stadium, Atlanta',stage:'Semi-Final'},
+
+  // Third Place & Final — all teams TBC (depend on Semi-Final results, July 14-15)
+  {apiId:537389,date:'2026-07-18',etH:17,etM:0,group:null,home:'TBC (SF 1 Loser)',away:'TBC (SF 2 Loser)',homeFlag:null,awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Third Place'},
+  {apiId:537390,date:'2026-07-19',etH:15,etM:0,group:null,home:'TBC (SF 1 Winner)',away:'TBC (SF 2 Winner)',homeFlag:null,awayFlag:null,venue:'MetLife Stadium, East Rutherford',stage:'Final'},
 ];
 
 // Key players (notable squad members per team)
@@ -2989,6 +3038,34 @@ function parseServerlessData(data) {
       kickoffMs: f.kickoffUtc ? new Date(f.kickoffUtc).getTime() : null,
     };
     if (status === 'FINISHED') liveState.liveMatches.push(liveState.liveScores[useKey]);
+  });
+
+  // ── AUTO-RESOLVE TBC KNOCKOUT SLOTS ──────────────────────────────────────
+  // The block above only updates ALL_FIXTURES entries that already have
+  // real team names on both sides — it can never fill in a "TBC (...)"
+  // placeholder, since there's nothing to match team names against yet.
+  // This second pass instead matches by fixture ID (apiId), which is
+  // stable from the moment FIFA creates the match, long before either
+  // team is known. The moment the live API confirms a real name for a
+  // knockout slot, this replaces our placeholder text with it — and
+  // crucially, leaves the OTHER side as TBC if it's still undecided,
+  // rather than guessing or overwriting a still-correct placeholder.
+  (data.fixtures || []).forEach(function(f) {
+    if (!f.id) return;
+    var fx = ALL_FIXTURES.find(function(x){ return x.apiId === f.id; });
+    if (!fx) return; // not one of our tracked knockout slots
+
+    var liveHome = f.home ? normTeam(f.home) : null;
+    var liveAway = f.away ? normTeam(f.away) : null;
+
+    if (liveHome && fx.home.indexOf('TBC') === 0) {
+      fx.home = liveHome;
+      fx.homeFlag = FLAG_MAP[liveHome] || null;
+    }
+    if (liveAway && fx.away.indexOf('TBC') === 0) {
+      fx.away = liveAway;
+      fx.awayFlag = FLAG_MAP[liveAway] || null;
+    }
   });
 }
 
