@@ -2024,7 +2024,7 @@ const ALL_FIXTURES = [
   {apiId:537419,date:'2026-07-02',etH:19,etM:0,group:null,home:'TBC (Group K Runner-up)',away:'TBC (Group L Runner-up)',homeFlag:null,awayFlag:null,venue:'Toronto Stadium, Toronto',stage:'Round of 32'},
   {apiId:537429,date:'2026-07-02',etH:23,etM:0,group:null,home:'Switzerland',away:'TBC (Best 3rd: E/F/G/I/J)',homeFlag:'ch',awayFlag:null,venue:'Vancouver Stadium, Vancouver',stage:'Round of 32'},
   {apiId:537428,date:'2026-07-03',etH:14,etM:0,group:null,home:'Australia',away:'TBC (Group G Runner-up)',homeFlag:'au',awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Round of 32'},
-  {apiId:537427,date:'2026-07-03',etH:18,etM:0,group:null,home:'Argentina',away:'TBC (Group H Runner-up)',homeFlag:'ar',awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Round of 32'},
+  {apiId:537427,date:'2026-07-03',etH:18,etM:0,group:null,home:'Argentina',away:'Cape Verde',homeFlag:'ar',awayFlag:'cv',venue:'Hard Rock Stadium, Miami Gardens',stage:'Round of 32'},
   {apiId:537430,date:'2026-07-03',etH:21,etM:30,group:null,home:'TBC (Group K Winner)',away:'TBC (Best 3rd: D/E/I/J/L)',homeFlag:null,awayFlag:null,venue:'Arrowhead Stadium, Kansas City',stage:'Round of 32'},
 
   // Round of 16 — all teams TBC (depend on Round of 32 results, July 3)
@@ -2961,6 +2961,39 @@ const KNOWN_RESULTS = [
   { home:'Scotland',     away:'Morocco',         hs:0, as:1 },
   { home:'Brazil',       away:'Haiti',           hs:3, as:0 },
   { home:'Türkiye',      away:'Paraguay',         hs:0, as:1 },
+  // ── Added: previously missing results (verified vs live API) ───────────
+  { home:'Netherlands',   away:'Sweden',              hs:5, as:1 },
+  { home:'Germany',       away:'Ivory Coast',         hs:2, as:1 },
+  { home:'Ecuador',       away:'Curaçao',             hs:0, as:0 },
+  { home:'Tunisia',       away:'Japan',               hs:0, as:4 },
+  { home:'Spain',         away:'Saudi Arabia',        hs:4, as:0 },
+  { home:'Belgium',       away:'Iran',                hs:0, as:0 },
+  { home:'Uruguay',       away:'Cape Verde',          hs:2, as:2 },
+  { home:'New Zealand',   away:'Egypt',               hs:1, as:3 },
+  { home:'Argentina',     away:'Austria',             hs:2, as:0 },
+  { home:'France',        away:'Iraq',                hs:3, as:0 },
+  { home:'Norway',        away:'Senegal',             hs:3, as:2 },
+  { home:'Jordan',        away:'Algeria',             hs:1, as:2 },
+  { home:'Portugal',      away:'Uzbekistan',          hs:5, as:0 },
+  { home:'England',       away:'Ghana',               hs:0, as:0 },
+  { home:'Panama',        away:'Croatia',             hs:0, as:1 },
+  { home:'Colombia',      away:'DR Congo',            hs:1, as:0 },
+  { home:'Switzerland',   away:'Canada',              hs:2, as:1 },
+  { home:'Bosnia & Herz.',away:'Qatar',               hs:3, as:1 },
+  { home:'Morocco',       away:'Haiti',               hs:4, as:2 },
+  { home:'Scotland',      away:'Brazil',              hs:0, as:3 },
+  { home:'Czechia',       away:'Mexico',              hs:0, as:3 },
+  { home:'South Africa',  away:'South Korea',         hs:1, as:0 },
+  { home:'Ecuador',       away:'Germany',             hs:2, as:1 },
+  { home:'Curaçao',       away:'Ivory Coast',         hs:0, as:2 },
+  { home:'Tunisia',       away:'Netherlands',         hs:1, as:3 },
+  { home:'Japan',         away:'Sweden',              hs:1, as:1 },
+  { home:'Türkiye',       away:'USA',                 hs:3, as:2 },
+  { home:'Paraguay',      away:'Australia',           hs:0, as:0 },
+  { home:'Norway',        away:'France',              hs:1, as:4 },
+  { home:'Senegal',       away:'Iraq',                hs:5, as:0 },
+  { home:'Uruguay',       away:'Spain',               hs:0, as:1 },
+  { home:'Cape Verde',    away:'Saudi Arabia',        hs:0, as:0 },
 ];
 // Last verified: 20 June 2026 ~07:00 AEST — confirmed final via FIFA match centre.
 // Türkiye 0-1 Paraguay (Galarza 2') — Türkiye eliminated from the tournament.
@@ -3199,6 +3232,43 @@ function computeStandingsFromScores() {
   Object.keys(standMap).forEach(function(g) {
     liveState.groupStandingsLive[g] = Object.values(standMap[g])
       .sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf;});
+  });
+
+  resolveKnockoutSlotsFromStandings();
+}
+
+// ─── AUTO-RESOLVE TBC SLOTS FROM COMPLETED GROUPS ────────────────────────────
+// Whenever a group finishes all its matches, its 1st and 2nd place teams are
+// mathematically final — no further results can change them. The moment a
+// group becomes complete, this fills in any "TBC (Group X Winner)" or
+// "TBC (Group X Runner-up)" placeholder with the real, confirmed team name.
+//
+// Deliberately NOT handled here: third-place qualification. Which third-
+// placed teams make the "best 8 of 12" cut depends on ALL 12 groups finishing
+// — a single group's 3rd place being final doesn't mean their tournament
+// qualification is. Those slots stay TBC until resolved manually, the same
+// safe approach used for the apiId-based live API resolution.
+function resolveKnockoutSlotsFromStandings() {
+  Object.keys(GROUPS).forEach(function(g) {
+    var table = liveState.groupStandingsLive[g];
+    if (!table || table.length < 4) return;
+    // A group is complete once every team has played all 3 matches
+    var isComplete = table.every(function(t){ return t.p === 3; });
+    if (!isComplete) return;
+
+    var winner = table[0].team;
+    var runnerUp = table[1].team;
+
+    ALL_FIXTURES.forEach(function(fx) {
+      if (fx.stage !== 'Round of 32') return;
+      var winnerTag = 'TBC (Group ' + g + ' Winner)';
+      var runnerUpTag = 'TBC (Group ' + g + ' Runner-up)';
+
+      if (fx.home === winnerTag) { fx.home = winner; fx.homeFlag = FLAG_MAP[winner] || null; }
+      if (fx.away === winnerTag) { fx.away = winner; fx.awayFlag = FLAG_MAP[winner] || null; }
+      if (fx.home === runnerUpTag) { fx.home = runnerUp; fx.homeFlag = FLAG_MAP[runnerUp] || null; }
+      if (fx.away === runnerUpTag) { fx.away = runnerUp; fx.awayFlag = FLAG_MAP[runnerUp] || null; }
+    });
   });
 }
 
