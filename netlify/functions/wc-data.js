@@ -39,6 +39,7 @@ exports.handler = async function (event) {
         error: 'FOOTBALL_DATA_TOKEN not configured',
         fixtures: [],
         standings: [],
+        scorers: [],
         stale: true,
       }),
     };
@@ -50,11 +51,17 @@ exports.handler = async function (event) {
   }
 
   try {
-    const [matchesRes, standingsRes] = await Promise.all([
+    const [matchesRes, standingsRes, scorersRes] = await Promise.all([
       fetch(`${API_BASE}/competitions/${COMPETITION_CODE}/matches`, {
         headers: { 'X-Auth-Token': token },
       }),
       fetch(`${API_BASE}/competitions/${COMPETITION_CODE}/standings`, {
+        headers: { 'X-Auth-Token': token },
+      }),
+      // Top scorers — free tier exposes goals (and sometimes assists) per
+      // player. If this 403s/404s on the free plan for this competition,
+      // fail gracefully rather than break the whole response.
+      fetch(`${API_BASE}/competitions/${COMPETITION_CODE}/scorers?limit=20`, {
         headers: { 'X-Auth-Token': token },
       }),
     ]);
@@ -66,6 +73,7 @@ exports.handler = async function (event) {
     const matchesJson = await matchesRes.json();
     // Standings may 404 before the group stage table exists yet — handle gracefully
     const standingsJson = standingsRes.ok ? await standingsRes.json() : { standings: [] };
+    const scorersJson = scorersRes.ok ? await scorersRes.json() : { scorers: [] };
 
     const fixtures = (matchesJson.matches || []).map(m => ({
       id: m.id,
@@ -95,9 +103,19 @@ exports.handler = async function (event) {
       }))
     );
 
+    const scorers = (scorersJson.scorers || []).map(s => ({
+      player: s.player && s.player.name,
+      nationality: s.player && s.player.nationality,
+      team: s.team && s.team.name,
+      goals: s.goals,
+      assists: s.assists != null ? s.assists : null,
+      playedMatches: s.playedMatches != null ? s.playedMatches : null,
+    }));
+
     const result = {
       fixtures,
       standings,
+      scorers,
       fetchedAt: new Date().toISOString(),
       stale: false,
     };
@@ -117,7 +135,7 @@ exports.handler = async function (event) {
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ fixtures: [], standings: [], stale: true, error: err.message }),
+      body: JSON.stringify({ fixtures: [], standings: [], scorers: [], stale: true, error: err.message }),
     };
   }
 };
