@@ -1535,6 +1535,55 @@
     letter-spacing: 1px; margin-top: 6px;
   }
 
+  /* ════════════════════════════════════════════════════════════════════
+     TOP SCORERS TAB
+     ════════════════════════════════════════════════════════════════════ */
+  .scorers-header { padding: 4px 4px 18px; }
+  .scorers-title {
+    font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 1px;
+    color: var(--gold);
+  }
+  .scorers-subtitle { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+  .scorer-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 6px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .scorer-row:hover { border-color: var(--gold2); transform: translateX(2px); }
+  .scorer-row.top3 { border-color: rgba(240,192,64,0.35); }
+
+  .scorer-rank {
+    font-family: 'Bebas Neue', cursive; font-size: 22px; color: var(--muted);
+    width: 32px; text-align: center; flex-shrink: 0;
+  }
+  .scorer-row.top3 .scorer-rank { color: var(--gold); }
+  .scorer-row:nth-child(1) .scorer-rank::after { content: ' 🥇'; font-size: 13px; }
+  .scorer-row:nth-child(2) .scorer-rank::after { content: ' 🥈'; font-size: 13px; }
+  .scorer-row:nth-child(3) .scorer-rank::after { content: ' 🥉'; font-size: 13px; }
+
+  .scorer-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+  .scorer-name { font-size: 14.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scorer-team { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .scorer-stats { display: flex; gap: 22px; flex-shrink: 0; }
+  .scorer-stat { text-align: center; min-width: 52px; }
+  .scorer-stat-val {
+    font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 700; color: var(--gold);
+    line-height: 1;
+  }
+  .scorer-stat-val.muted { color: var(--text); }
+  .scorer-stat-lbl {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--muted); margin-top: 2px;
+  }
+
+  .scorers-empty {
+    text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px;
+  }
+  .scorers-empty .se-icon { font-size: 32px; margin-bottom: 10px; }
+
   @media (max-width: 600px) {
     .bracket-tree { min-width: 1500px; }
     .bracket-scroll-wrap::after {
@@ -1542,6 +1591,12 @@
       display: block; text-align: center; font-size: 10px;
       color: var(--muted); margin-top: 4px;
     }
+    .scorer-row { padding: 10px 12px; gap: 10px; }
+    .scorer-rank { font-size: 18px; width: 26px; }
+    .scorer-name { font-size: 13px; }
+    .scorer-stats { gap: 12px; }
+    .scorer-stat { min-width: 40px; }
+    .scorer-stat-val { font-size: 15px; }
   }
 </style>
 </head>
@@ -1675,6 +1730,7 @@
   <div class="tab active" onclick="switchTab('fixtures')">📅 Fixtures</div>
   <div class="tab" onclick="switchTab('groups')">🏆 Groups & Standings</div>
   <div class="tab" onclick="switchTab('bracket')">🌳 Knockout Bracket</div>
+  <div class="tab" onclick="switchTab('scorers')">⚽ Top Scorers</div>
   <div class="tab" onclick="switchTab('performers')">🏆 Hall of Fame</div>
   <div class="tab" onclick="switchTab('simulator')">🎮 Tournament Simulator</div>
 </div>
@@ -1775,6 +1831,15 @@
     <div class="bracket-scroll-wrap">
       <div class="bracket-tree" id="bracket-tree"></div>
     </div>
+  </div>
+
+    <!-- TOP SCORERS PANEL -->
+  <div class="panel" id="panel-scorers">
+    <div class="scorers-header">
+      <div class="scorers-title">⚽ Golden Boot Race</div>
+      <div class="scorers-subtitle" id="scorers-subtitle">Live top scorers, updated automatically</div>
+    </div>
+    <div id="scorers-content"></div>
   </div>
 
     <!-- HALL OF FAME PANEL -->
@@ -2233,6 +2298,7 @@ function switchTab(tab) {
   if (tab === 'performers') renderHallOfFame();
   if (tab === 'simulator') showSimGroup(simState.currentGroup);
   if (tab === 'bracket') renderKnockoutBracket();
+  if (tab === 'scorers') renderTopScorers();
 }
 
 // =============================================
@@ -3020,6 +3086,7 @@ let liveState = {
   liveScores: {},
   liveMatches: [],
   groupStandingsLive: {},
+  topScorers: [],
   lastSource: null,
 };
 
@@ -3208,6 +3275,24 @@ function parseServerlessData(data) {
       fx.awayFlag = FLAG_MAP[liveAway] || null;
     }
   });
+
+  // ── TOP SCORERS ──────────────────────────────────────────────────────────
+  // football-data.org's free tier returns goals (and sometimes assists +
+  // matches played) per player via the scorers endpoint. Deliberately not
+  // showing the richer paid-tier-only stats (shots, minutes, efficiency
+  // ratios) since the free tier doesn't provide them — better to show a
+  // clean, accurate, simple table than fake columns we can't fill in.
+  if (Array.isArray(data.scorers) && data.scorers.length > 0) {
+    liveState.topScorers = data.scorers.map(function(s) {
+      return {
+        player: s.player,
+        team: normTeam(s.team) || s.team,
+        goals: s.goals,
+        assists: s.assists,
+        playedMatches: s.playedMatches,
+      };
+    });
+  }
 }
 
 async function fetchLiveData() {
@@ -3630,6 +3715,50 @@ let hofActiveFilter = 'all';
 // =============================================
 // KNOCKOUT BRACKET — visual tree, Round of 32 through Final
 // =============================================
+// =============================================
+// TOP SCORERS — clean, simple table (Player, Team, Goals, Assists, Played)
+// =============================================
+function renderTopScorers() {
+  var el = document.getElementById('scorers-content');
+  var subtitle = document.getElementById('scorers-subtitle');
+  if (!el) return;
+
+  var scorers = liveState.topScorers || [];
+
+  if (scorers.length === 0) {
+    el.innerHTML = '<div class="scorers-empty">' +
+      '<div class="se-icon">⚽</div>' +
+      'Top scorers will appear here once available from the live data feed.' +
+      '</div>';
+    if (subtitle) subtitle.textContent = 'No data yet — check back once group matches are underway';
+    return;
+  }
+
+  var html = scorers.map(function(s, i) {
+    var topClass = i < 3 ? ' top3' : '';
+    var assistsHtml = (s.assists !== null && s.assists !== undefined)
+      ? '<div class="scorer-stat"><div class="scorer-stat-val muted">' + s.assists + '</div><div class="scorer-stat-lbl">Assists</div></div>'
+      : '';
+    var playedHtml = (s.playedMatches !== null && s.playedMatches !== undefined)
+      ? '<div class="scorer-stat"><div class="scorer-stat-val muted">' + s.playedMatches + '</div><div class="scorer-stat-lbl">Played</div></div>'
+      : '';
+    return '<div class="scorer-row' + topClass + '">' +
+      '<div class="scorer-rank">' + (i + 1) + '</div>' +
+      '<div class="scorer-info">' + tf(s.team, 22) +
+        '<div><div class="scorer-name">' + s.player + '</div>' +
+        '<div class="scorer-team">' + s.team + '</div></div>' +
+      '</div>' +
+      '<div class="scorer-stats">' +
+        '<div class="scorer-stat"><div class="scorer-stat-val">' + s.goals + '</div><div class="scorer-stat-lbl">Goals</div></div>' +
+        assistsHtml + playedHtml +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML = html;
+  if (subtitle) subtitle.textContent = 'Top ' + scorers.length + ' scorers · updates automatically with live data';
+}
+
 function renderKnockoutBracket() {
   var el = document.getElementById('bracket-tree');
   if (!el) return;
