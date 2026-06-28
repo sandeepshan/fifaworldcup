@@ -1450,6 +1450,98 @@
        than crushing column content unreadably small */
     .hof-table-wrap { overflow-x: auto; }
     .hof-table { min-width: 560px; }
+  }  /* ════════════════════════════════════════════════════════════════════
+     KNOCKOUT BRACKET TAB
+     ════════════════════════════════════════════════════════════════════ */
+  .bracket-header { padding: 4px 4px 18px; }
+  .bracket-title {
+    font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 1px;
+    color: var(--gold);
+  }
+  .bracket-subtitle { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+  .bracket-scroll-wrap {
+    overflow-x: auto; padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .bracket-tree {
+    display: flex; gap: 0; min-width: 1500px; padding: 8px 4px 24px;
+  }
+  .bracket-round {
+    display: flex; flex-direction: column; justify-content: space-around;
+    min-width: 230px; flex-shrink: 0; position: relative;
+  }
+  .bracket-round-label {
+    text-align: center; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--gold); font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .bracket-round-date {
+    text-align: center; font-size: 10px; color: var(--muted);
+    margin-top: -10px; margin-bottom: 14px;
+  }
+
+  .bracket-match-group {
+    display: flex; flex-direction: column; justify-content: center;
+    flex: 1;
+  }
+  .bracket-match {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; margin: 6px 14px;
+    position: relative; transition: border-color 0.15s;
+    min-height: 56px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .bracket-match:hover { border-color: var(--gold2); }
+  .bracket-match.has-winner { border-color: rgba(240,192,64,0.4); }
+  .bracket-team {
+    display: flex; align-items: center; gap: 6px; padding: 2px 0;
+    font-size: 12.5px; color: var(--text);
+  }
+  .bracket-team.tbc { color: var(--muted); font-style: italic; font-size: 11px; }
+  .bracket-team .bt-flag { flex-shrink: 0; }
+  .bracket-team .bt-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bracket-team .bt-score {
+    font-family: 'DM Mono', monospace; font-weight: 700; color: var(--gold);
+    margin-left: 4px;
+  }
+  .bracket-team.winner .bt-name { color: var(--gold); font-weight: 600; }
+  .bracket-vs-divider { height: 1px; background: var(--border); margin: 3px 0; }
+  .bracket-match-meta {
+    text-align: center; font-size: 9.5px; color: var(--muted); margin-top: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .bracket-match-status {
+    position: absolute; top: -7px; right: 8px; font-size: 8.5px; font-weight: 700;
+    letter-spacing: 0.5px; padding: 1px 6px; border-radius: 8px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+  }
+  .bracket-match-status.live { color: var(--red); border-color: rgba(239,68,68,0.4); }
+  .bracket-match-status.finished { color: var(--green); border-color: rgba(74,222,128,0.3); }
+
+  /* Connector lines between rounds */
+  .bracket-connectors {
+    width: 28px; flex-shrink: 0; position: relative;
+  }
+  .bracket-final-col {
+    display: flex; flex-direction: column; justify-content: center;
+    min-width: 200px; flex-shrink: 0;
+  }
+  .bracket-trophy-final {
+    text-align: center; padding: 16px 10px;
+  }
+  .bracket-trophy-final .bt-emoji { font-size: 32px; }
+  .bracket-trophy-final .bt-label {
+    font-family: 'Bebas Neue', cursive; font-size: 15px; color: var(--gold);
+    letter-spacing: 1px; margin-top: 6px;
+  }
+
+  @media (max-width: 600px) {
+    .bracket-tree { min-width: 1500px; }
+    .bracket-scroll-wrap::after {
+      content: '← scroll to see full bracket →';
+      display: block; text-align: center; font-size: 10px;
+      color: var(--muted); margin-top: 4px;
+    }
   }
 </style>
 </head>
@@ -1582,6 +1674,7 @@
 <div class="tabs">
   <div class="tab active" onclick="switchTab('fixtures')">📅 Fixtures</div>
   <div class="tab" onclick="switchTab('groups')">🏆 Groups & Standings</div>
+  <div class="tab" onclick="switchTab('bracket')">🌳 Knockout Bracket</div>
   <div class="tab" onclick="switchTab('performers')">🏆 Hall of Fame</div>
   <div class="tab" onclick="switchTab('simulator')">🎮 Tournament Simulator</div>
 </div>
@@ -1671,6 +1764,17 @@
       <button class="filter-btn" onclick="filterGroups('L',this)">L</button>
     </div>
     <div class="groups-grid" id="groups-container"></div>
+  </div>
+
+    <!-- KNOCKOUT BRACKET PANEL -->
+  <div class="panel" id="panel-bracket">
+    <div class="bracket-header">
+      <div class="bracket-title">🏆 Road to the Final</div>
+      <div class="bracket-subtitle" id="bracket-subtitle">Confirmed teams and TBC slots, updated automatically as groups finish</div>
+    </div>
+    <div class="bracket-scroll-wrap">
+      <div class="bracket-tree" id="bracket-tree"></div>
+    </div>
   </div>
 
     <!-- HALL OF FAME PANEL -->
@@ -2128,6 +2232,7 @@ function switchTab(tab) {
   document.getElementById('panel-'+tab).classList.add('active');
   if (tab === 'performers') renderHallOfFame();
   if (tab === 'simulator') showSimGroup(simState.currentGroup);
+  if (tab === 'bracket') renderKnockoutBracket();
 }
 
 // =============================================
@@ -2977,6 +3082,8 @@ const KNOWN_RESULTS = [
   { home:'Portugal',      away:'Uzbekistan',          hs:5, as:0 },
   { home:'England',       away:'Ghana',               hs:0, as:0 },
   { home:'Panama',        away:'Croatia',             hs:0, as:1 },
+  { home:'Panama',        away:'England',             hs:0, as:2 },
+  { home:'Croatia',       away:'Ghana',               hs:2, as:1 },
   { home:'Colombia',      away:'DR Congo',            hs:1, as:0 },
   { home:'Switzerland',   away:'Canada',              hs:2, as:1 },
   { home:'Bosnia & Herz.',away:'Qatar',               hs:3, as:1 },
@@ -3519,6 +3626,102 @@ const HOF_NATIONS = [
 ];
 
 let hofActiveFilter = 'all';
+
+// =============================================
+// KNOCKOUT BRACKET — visual tree, Round of 32 through Final
+// =============================================
+function renderKnockoutBracket() {
+  var el = document.getElementById('bracket-tree');
+  if (!el) return;
+
+  var stages = [
+    { key: 'Round of 32',  label: 'Round of 32',   short: 'R32' },
+    { key: 'Round of 16',  label: 'Round of 16',   short: 'R16' },
+    { key: 'Quarter-Final', label: 'Quarter-Finals', short: 'QF' },
+    { key: 'Semi-Final',   label: 'Semi-Finals',   short: 'SF' },
+    { key: 'Final',        label: 'Final',         short: 'FINAL' },
+  ];
+
+  function matchStatusInfo(fx) {
+    var ls = getLiveScore(fx.home, fx.away);
+    if (ls && ls.status === 'FINISHED') return { status: 'finished', score: ls };
+    if (ls && (ls.status === 'IN_PLAY' || ls.status === 'PAUSED')) return { status: 'live', score: ls };
+    return { status: 'upcoming', score: null };
+  }
+
+  function teamRowHtml(team, flag, score, isWinner) {
+    var isTbc = team.indexOf('TBC') === 0;
+    if (isTbc) {
+      // Shorten long TBC descriptions so cards don't overflow
+      var shortText = team.replace('TBC (', '').replace(')', '');
+      return '<div class="bracket-team tbc"><span class="bt-flag">' + tf('', 14) + '</span>' +
+             '<span class="bt-name">' + shortText + '</span></div>';
+    }
+    var flagHtml = tf(team, 16);
+    var scoreHtml = score !== null ? '<span class="bt-score">' + score + '</span>' : '';
+    return '<div class="bracket-team' + (isWinner ? ' winner' : '') + '">' +
+           '<span class="bt-flag">' + flagHtml + '</span>' +
+           '<span class="bt-name">' + team + '</span>' + scoreHtml + '</div>';
+  }
+
+  function buildMatchHtml(fx, matchNumber, stageShort) {
+    var info = matchStatusInfo(fx);
+    var homeScore = null, awayScore = null, homeWin = false, awayWin = false;
+    if (info.score) {
+      var isHomeOriented = info.score.home === fx.home;
+      homeScore = isHomeOriented ? info.score.homeScore : info.score.awayScore;
+      awayScore = isHomeOriented ? info.score.awayScore : info.score.homeScore;
+      if (info.status === 'finished' && homeScore !== null) {
+        homeWin = homeScore > awayScore;
+        awayWin = awayScore > homeScore;
+      }
+    }
+    var statusBadge = info.status === 'finished'
+      ? '<div class="bracket-match-status finished">FT</div>'
+      : info.status === 'live'
+        ? '<div class="bracket-match-status live">LIVE</div>'
+        : '';
+    var dateStr = fx.aestDate ? fx.aestDate : '';
+    return '<div class="bracket-match-group"><div class="bracket-match' + (info.status==='finished'?' has-winner':'') + '" data-match="' + stageShort + matchNumber + '">' +
+      statusBadge +
+      teamRowHtml(fx.home, fx.homeFlag, homeScore, homeWin) +
+      '<div class="bracket-vs-divider"></div>' +
+      teamRowHtml(fx.away, fx.awayFlag, awayScore, awayWin) +
+      '<div class="bracket-match-meta">' + dateStr + (fx.aestTime ? ' · ' + fx.aestTime + ' AEST' : '') + '</div>' +
+    '</div></div>';
+  }
+
+  var html = '';
+  stages.forEach(function(stage, idx) {
+    var matches = ALL_FIXTURES.filter(function(f){ return f.stage === stage.key; });
+    if (matches.length === 0) return;
+    // Keep original array order (already correctly seeded as Match 1, 2, 3...)
+    html += '<div class="bracket-round">';
+    html += '<div class="bracket-round-label">' + stage.label + '</div>';
+    if (matches[0].aestDate) {
+      html += '<div class="bracket-round-date">From ' + matches[0].aestDate + '</div>';
+    }
+    matches.forEach(function(fx, i) {
+      html += buildMatchHtml(fx, i + 1, stage.short);
+    });
+    html += '</div>';
+  });
+
+  // Trophy column after the Final
+  html += '<div class="bracket-final-col"><div class="bracket-trophy-final">' +
+    '<div class="bt-emoji">🏆</div><div class="bt-label">WORLD<br>CHAMPION</div></div></div>';
+
+  el.innerHTML = html;
+
+  var subtitle = document.getElementById('bracket-subtitle');
+  if (subtitle) {
+    var confirmedCount = ALL_FIXTURES.filter(function(f){
+      return f.stage !== 'Group' && f.home.indexOf('TBC') !== 0 && f.away.indexOf('TBC') !== 0;
+    }).length;
+    var totalKnockout = ALL_FIXTURES.filter(function(f){ return f.stage !== 'Group'; }).length;
+    subtitle.textContent = confirmedCount + ' of ' + totalKnockout + ' knockout matches fully confirmed · updates automatically as groups finish';
+  }
+}
 
 function renderHallOfFame() {
   renderHofTable();
