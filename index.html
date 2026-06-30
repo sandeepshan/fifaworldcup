@@ -1466,19 +1466,23 @@
   }
   .bracket-tree {
     display: flex; gap: 0; min-width: 1500px; padding: 8px 4px 24px;
+    align-items: stretch;
+  }
+  .bracket-half {
+    display: flex; gap: 0;
   }
   .bracket-round {
     display: flex; flex-direction: column; justify-content: space-around;
-    min-width: 230px; flex-shrink: 0; position: relative;
+    min-width: 170px; flex-shrink: 0; position: relative;
   }
   .bracket-round-label {
-    text-align: center; font-size: 11px; text-transform: uppercase;
-    letter-spacing: 1.5px; color: var(--gold); font-weight: 700;
-    margin-bottom: 14px;
+    text-align: center; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--gold); font-weight: 700;
+    margin-bottom: 8px;
   }
   .bracket-round-date {
-    text-align: center; font-size: 10px; color: var(--muted);
-    margin-top: -10px; margin-bottom: 14px;
+    text-align: center; font-size: 9px; color: var(--muted);
+    margin-top: -6px; margin-bottom: 8px;
   }
 
   .bracket-match-group {
@@ -1487,17 +1491,17 @@
   }
   .bracket-match {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 10px; margin: 6px 14px;
+    border-radius: 6px; padding: 6px 8px; margin: 4px 8px;
     position: relative; transition: border-color 0.15s;
-    min-height: 56px; display: flex; flex-direction: column; justify-content: center;
+    min-height: 44px; display: flex; flex-direction: column; justify-content: center;
   }
   .bracket-match:hover { border-color: var(--gold2); }
   .bracket-match.has-winner { border-color: rgba(240,192,64,0.4); }
   .bracket-team {
-    display: flex; align-items: center; gap: 6px; padding: 2px 0;
-    font-size: 12.5px; color: var(--text);
+    display: flex; align-items: center; gap: 5px; padding: 1px 0;
+    font-size: 11.5px; color: var(--text);
   }
-  .bracket-team.tbc { color: var(--muted); font-style: italic; font-size: 11px; }
+  .bracket-team.tbc { color: var(--muted); font-style: italic; font-size: 10.5px; }
   .bracket-team .bt-flag { flex-shrink: 0; }
   .bracket-team .bt-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bracket-team .bt-score {
@@ -1505,9 +1509,9 @@
     margin-left: 4px;
   }
   .bracket-team.winner .bt-name { color: var(--gold); font-weight: 600; }
-  .bracket-vs-divider { height: 1px; background: var(--border); margin: 3px 0; }
+  .bracket-vs-divider { height: 1px; background: var(--border); margin: 2px 0; }
   .bracket-match-meta {
-    text-align: center; font-size: 9.5px; color: var(--muted); margin-top: 4px;
+    text-align: center; font-size: 8.5px; color: var(--muted); margin-top: 2px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .bracket-match-status {
@@ -1523,16 +1527,16 @@
     width: 28px; flex-shrink: 0; position: relative;
   }
   .bracket-final-col {
-    display: flex; flex-direction: column; justify-content: center;
-    min-width: 200px; flex-shrink: 0;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    min-width: 170px; flex-shrink: 0; gap: 6px;
   }
   .bracket-trophy-final {
-    text-align: center; padding: 16px 10px;
+    text-align: center; padding: 10px 8px;
   }
-  .bracket-trophy-final .bt-emoji { font-size: 32px; }
+  .bracket-trophy-final .bt-emoji { font-size: 26px; }
   .bracket-trophy-final .bt-label {
-    font-family: 'Bebas Neue', cursive; font-size: 15px; color: var(--gold);
-    letter-spacing: 1px; margin-top: 6px;
+    font-family: 'Bebas Neue', cursive; font-size: 13px; color: var(--gold);
+    letter-spacing: 1px; margin-top: 4px;
   }
 
   /* ════════════════════════════════════════════════════════════════════
@@ -2172,53 +2176,58 @@ const ALL_FIXTURES = [
   {date:'2026-06-27',etH:22,etM:0,group:'J',home:'Jordan',away:'Argentina',homeFlag:'jo',awayFlag:'ar',venue:'Dallas Stadium, Dallas',stage:'Group'},
 
   // ── KNOCKOUT STAGE ──────────────────────────────────────────────────────
-  // Round of 32: confirmed teams from completed groups (A-F, H, I) are real
-  // names; everything depending on Groups G, J, K, L (still in progress) or
-  // on the cross-group "best 8 third-placed teams" ranking is marked TBC,
-  // since that ranking cannot be finalized until all 12 groups finish.
-  // Dates/venues/kickoff times verified against the live API and FIFA's
-  // official published schedule — only the not-yet-determined team names
-  // are placeholders.
-  {apiId:537417,date:'2026-06-28',etH:15,etM:0,group:null,home:'South Africa',away:'Canada',homeFlag:'za',awayFlag:'ca',venue:'Los Angeles Stadium, Inglewood',stage:'Round of 32'},
-  {apiId:537423,date:'2026-06-29',etH:13,etM:0,group:null,home:'Brazil',away:'Japan',homeFlag:'br',awayFlag:'jp',venue:'NRG Stadium, Houston',stage:'Round of 32'},
-  {apiId:537415,date:'2026-06-29',etH:16,etM:30,group:null,home:'Germany',away:'Paraguay',homeFlag:'de',awayFlag:'py',venue:'Gillette Stadium, Foxborough',stage:'Round of 32'},
-  {apiId:537418,date:'2026-06-29',etH:21,etM:0,group:null,home:'Netherlands',away:'Morocco',homeFlag:'nl',awayFlag:'ma',venue:'Estadio Monterrey, Monterrey',stage:'Round of 32'},
-  {apiId:537424,date:'2026-06-30',etH:13,etM:0,group:null,home:'France',away:'Sweden',homeFlag:'fr',awayFlag:'se',venue:'MetLife Stadium, East Rutherford',stage:'Round of 32'},
-  {apiId:537416,date:'2026-06-30',etH:17,etM:0,group:null,home:'Ivory Coast',away:'Norway',homeFlag:'ci',awayFlag:'no',venue:'AT&T Stadium, Arlington',stage:'Round of 32'},
-  {apiId:537425,date:'2026-06-30',etH:21,etM:0,group:null,home:'Mexico',away:'Ecuador',homeFlag:'mx',awayFlag:'ec',venue:'Estadio Azteca, Mexico City',stage:'Round of 32'},
-  {apiId:537426,date:'2026-07-01',etH:12,etM:0,group:null,home:'Belgium',away:'Senegal',homeFlag:'be',awayFlag:'sn',venue:'Lumen Field, Seattle',stage:'Round of 32'},
-  {apiId:537422,date:'2026-07-01',etH:16,etM:0,group:null,home:'England',away:'DR Congo',homeFlag:'gb-eng',awayFlag:'cd',venue:'Mercedes-Benz Stadium, Atlanta',stage:'Round of 32'},
-  {apiId:537421,date:'2026-07-01',etH:20,etM:0,group:null,home:'United States',away:'Bosnia & Herz.',homeFlag:'us',awayFlag:'ba',venue:'San Francisco Bay Area Stadium, Santa Clara',stage:'Round of 32'},
-  {apiId:537420,date:'2026-07-02',etH:15,etM:0,group:null,home:'Spain',away:'Austria',homeFlag:'es',awayFlag:'at',venue:'SoFi Stadium, Inglewood',stage:'Round of 32'},
-  {apiId:537419,date:'2026-07-02',etH:19,etM:0,group:null,home:'Portugal',away:'Croatia',homeFlag:'pt',awayFlag:'hr',venue:'Toronto Stadium, Toronto',stage:'Round of 32'},
-  {apiId:537429,date:'2026-07-02',etH:23,etM:0,group:null,home:'Switzerland',away:'Algeria',homeFlag:'ch',awayFlag:'dz',venue:'Vancouver Stadium, Vancouver',stage:'Round of 32'},
-  {apiId:537428,date:'2026-07-03',etH:14,etM:0,group:null,home:'Australia',away:'Egypt',homeFlag:'au',awayFlag:'eg',venue:'AT&T Stadium, Arlington',stage:'Round of 32'},
-  {apiId:537427,date:'2026-07-03',etH:18,etM:0,group:null,home:'Argentina',away:'Cape Verde',homeFlag:'ar',awayFlag:'cv',venue:'Hard Rock Stadium, Miami Gardens',stage:'Round of 32'},
-  {apiId:537430,date:'2026-07-03',etH:21,etM:30,group:null,home:'Colombia',away:'Ghana',homeFlag:'co',awayFlag:'gh',venue:'Arrowhead Stadium, Kansas City',stage:'Round of 32'},
+  // Uses FIFA's own official match numbers (73-104) as the apiId, sourced
+  // directly from FIFA/ESPN's published bracket — not a self-invented
+  // sequence. This is what makes auto-advancement actually correct: a
+  // finished match's real official number is what every "TBC (MNN Winner)"
+  // label downstream refers to, so winners propagate correctly. R32 results
+  // already played: South Africa 0-1 Canada, Germany 1-1 Paraguay (Paraguay
+  // won 4-3 on penalties), Netherlands 1-1 Morocco (Morocco won 3-2 on
+  // penalties), Brazil 2-1 Japan — confirmed across ESPN, Sky Sports, Al
+  // Jazeera, CBC, NBC, Fox News, Yahoo Sports.
+  {apiId:73,date:'2026-06-28',etH:15,etM:0,group:null,home:'South Africa',away:'Canada',homeFlag:'za',awayFlag:'ca',venue:'Los Angeles Stadium, Inglewood',stage:'Round of 32'},
+  {apiId:74,date:'2026-06-29',etH:16,etM:30,group:null,home:'Germany',away:'Paraguay',homeFlag:'de',awayFlag:'py',venue:'Gillette Stadium, Foxborough',stage:'Round of 32'},
+  {apiId:75,date:'2026-06-29',etH:21,etM:0,group:null,home:'Netherlands',away:'Morocco',homeFlag:'nl',awayFlag:'ma',venue:'Estadio Monterrey, Monterrey',stage:'Round of 32'},
+  {apiId:76,date:'2026-06-29',etH:13,etM:0,group:null,home:'Brazil',away:'Japan',homeFlag:'br',awayFlag:'jp',venue:'NRG Stadium, Houston',stage:'Round of 32'},
+  {apiId:77,date:'2026-06-30',etH:13,etM:0,group:null,home:'France',away:'Sweden',homeFlag:'fr',awayFlag:'se',venue:'MetLife Stadium, East Rutherford',stage:'Round of 32'},
+  {apiId:78,date:'2026-06-30',etH:17,etM:0,group:null,home:'Ivory Coast',away:'Norway',homeFlag:'ci',awayFlag:'no',venue:'AT&T Stadium, Arlington',stage:'Round of 32'},
+  {apiId:79,date:'2026-06-30',etH:21,etM:0,group:null,home:'Mexico',away:'Ecuador',homeFlag:'mx',awayFlag:'ec',venue:'Estadio Azteca, Mexico City',stage:'Round of 32'},
+  {apiId:80,date:'2026-07-01',etH:16,etM:0,group:null,home:'England',away:'DR Congo',homeFlag:'gb-eng',awayFlag:'cd',venue:'Mercedes-Benz Stadium, Atlanta',stage:'Round of 32'},
+  {apiId:81,date:'2026-07-01',etH:20,etM:0,group:null,home:'United States',away:'Bosnia & Herz.',homeFlag:'us',awayFlag:'ba',venue:'San Francisco Bay Area Stadium, Santa Clara',stage:'Round of 32'},
+  {apiId:82,date:'2026-07-01',etH:12,etM:0,group:null,home:'Belgium',away:'Senegal',homeFlag:'be',awayFlag:'sn',venue:'Lumen Field, Seattle',stage:'Round of 32'},
+  {apiId:83,date:'2026-07-02',etH:19,etM:0,group:null,home:'Portugal',away:'Croatia',homeFlag:'pt',awayFlag:'hr',venue:'Toronto Stadium, Toronto',stage:'Round of 32'},
+  {apiId:84,date:'2026-07-02',etH:15,etM:0,group:null,home:'Spain',away:'Austria',homeFlag:'es',awayFlag:'at',venue:'SoFi Stadium, Inglewood',stage:'Round of 32'},
+  {apiId:85,date:'2026-07-02',etH:23,etM:0,group:null,home:'Switzerland',away:'Algeria',homeFlag:'ch',awayFlag:'dz',venue:'Vancouver Stadium, Vancouver',stage:'Round of 32'},
+  {apiId:86,date:'2026-07-03',etH:18,etM:0,group:null,home:'Argentina',away:'Cape Verde',homeFlag:'ar',awayFlag:'cv',venue:'Hard Rock Stadium, Miami Gardens',stage:'Round of 32'},
+  {apiId:87,date:'2026-07-03',etH:21,etM:30,group:null,home:'Colombia',away:'Ghana',homeFlag:'co',awayFlag:'gh',venue:'Arrowhead Stadium, Kansas City',stage:'Round of 32'},
+  {apiId:88,date:'2026-07-03',etH:14,etM:0,group:null,home:'Australia',away:'Egypt',homeFlag:'au',awayFlag:'eg',venue:'AT&T Stadium, Arlington',stage:'Round of 32'},
 
-  // Round of 16 — all teams TBC (depend on Round of 32 results, July 3)
-  {apiId:537376,date:'2026-07-04',etH:13,etM:0,group:null,home:'TBC (R32 Match 1 Winner)',away:'TBC (R32 Match 3 Winner)',homeFlag:null,awayFlag:null,venue:'NRG Stadium, Houston',stage:'Round of 16'},
-  {apiId:537375,date:'2026-07-04',etH:17,etM:0,group:null,home:'TBC (R32 Match 4 Winner)',away:'TBC (R32 Match 6 Winner)',homeFlag:null,awayFlag:null,venue:'Philadelphia Stadium, Philadelphia',stage:'Round of 16'},
-  {apiId:537377,date:'2026-07-05',etH:16,etM:0,group:null,home:'TBC (R32 Match 5 Winner)',away:'TBC (R32 Match 9 Winner)',homeFlag:null,awayFlag:null,venue:'MetLife Stadium, East Rutherford',stage:'Round of 16'},
-  {apiId:537378,date:'2026-07-05',etH:20,etM:0,group:null,home:'TBC (R32 Match 7 Winner)',away:'TBC (R32 Match 2 Winner)',homeFlag:null,awayFlag:null,venue:'Estadio Azteca, Mexico City',stage:'Round of 16'},
-  {apiId:537379,date:'2026-07-06',etH:15,etM:0,group:null,home:'TBC (R32 Match 10 Winner)',away:'TBC (R32 Match 13 Winner)',homeFlag:null,awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Round of 16'},
-  {apiId:537380,date:'2026-07-06',etH:20,etM:0,group:null,home:'TBC (R32 Match 8 Winner)',away:'TBC (R32 Match 11 Winner)',homeFlag:null,awayFlag:null,venue:'Lumen Field, Seattle',stage:'Round of 16'},
-  {apiId:537381,date:'2026-07-07',etH:12,etM:0,group:null,home:'TBC (R32 Match 15 Winner)',away:'TBC (R32 Match 16 Winner)',homeFlag:null,awayFlag:null,venue:'Mercedes-Benz Stadium, Atlanta',stage:'Round of 16'},
-  {apiId:537382,date:'2026-07-07',etH:16,etM:0,group:null,home:'TBC (R32 Match 12 Winner)',away:'TBC (R32 Match 14 Winner)',homeFlag:null,awayFlag:null,venue:'BC Place, Vancouver',stage:'Round of 16'},
+  // Round of 16 — each TBC label references the real FIFA match number of
+  // its feeder game (e.g. "M73 Winner" = winner of match 73, South Africa
+  // vs Canada), so advanceKnockoutWinners() can resolve these the instant
+  // both feeders finish, using FIFA's own numbering rather than a guess.
+  {apiId:90,date:'2026-07-04',etH:13,etM:0,group:null,home:'TBC (M73 Winner)',away:'TBC (M75 Winner)',homeFlag:null,awayFlag:null,venue:'NRG Stadium, Houston',stage:'Round of 16'},
+  {apiId:89,date:'2026-07-04',etH:17,etM:0,group:null,home:'TBC (M74 Winner)',away:'TBC (M77 Winner)',homeFlag:null,awayFlag:null,venue:'Philadelphia Stadium, Philadelphia',stage:'Round of 16'},
+  {apiId:91,date:'2026-07-05',etH:16,etM:0,group:null,home:'TBC (M76 Winner)',away:'TBC (M78 Winner)',homeFlag:null,awayFlag:null,venue:'MetLife Stadium, East Rutherford',stage:'Round of 16'},
+  {apiId:92,date:'2026-07-05',etH:20,etM:0,group:null,home:'TBC (M79 Winner)',away:'TBC (M80 Winner)',homeFlag:null,awayFlag:null,venue:'Estadio Azteca, Mexico City',stage:'Round of 16'},
+  {apiId:93,date:'2026-07-06',etH:15,etM:0,group:null,home:'TBC (M83 Winner)',away:'TBC (M84 Winner)',homeFlag:null,awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Round of 16'},
+  {apiId:94,date:'2026-07-06',etH:20,etM:0,group:null,home:'TBC (M81 Winner)',away:'TBC (M82 Winner)',homeFlag:null,awayFlag:null,venue:'Lumen Field, Seattle',stage:'Round of 16'},
+  {apiId:95,date:'2026-07-07',etH:12,etM:0,group:null,home:'TBC (M86 Winner)',away:'TBC (M88 Winner)',homeFlag:null,awayFlag:null,venue:'Mercedes-Benz Stadium, Atlanta',stage:'Round of 16'},
+  {apiId:96,date:'2026-07-07',etH:16,etM:0,group:null,home:'TBC (M85 Winner)',away:'TBC (M87 Winner)',homeFlag:null,awayFlag:null,venue:'BC Place, Vancouver',stage:'Round of 16'},
 
-  // Quarter-Finals — all teams TBC (depend on Round of 16 results, July 7)
-  {apiId:537383,date:'2026-07-09',etH:16,etM:0,group:null,home:'TBC (R16 Match 1 Winner)',away:'TBC (R16 Match 2 Winner)',homeFlag:null,awayFlag:null,venue:'Gillette Stadium, Foxborough',stage:'Quarter-Final'},
-  {apiId:537384,date:'2026-07-10',etH:15,etM:0,group:null,home:'TBC (R16 Match 3 Winner)',away:'TBC (R16 Match 4 Winner)',homeFlag:null,awayFlag:null,venue:'SoFi Stadium, Inglewood',stage:'Quarter-Final'},
-  {apiId:537385,date:'2026-07-11',etH:17,etM:0,group:null,home:'TBC (R16 Match 5 Winner)',away:'TBC (R16 Match 6 Winner)',homeFlag:null,awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Quarter-Final'},
-  {apiId:537386,date:'2026-07-11',etH:21,etM:0,group:null,home:'TBC (R16 Match 7 Winner)',away:'TBC (R16 Match 8 Winner)',homeFlag:null,awayFlag:null,venue:'Arrowhead Stadium, Kansas City',stage:'Quarter-Final'},
+  // Quarter-Finals
+  {apiId:97,date:'2026-07-09',etH:16,etM:0,group:null,home:'TBC (M89 Winner)',away:'TBC (M90 Winner)',homeFlag:null,awayFlag:null,venue:'Gillette Stadium, Foxborough',stage:'Quarter-Final'},
+  {apiId:98,date:'2026-07-10',etH:15,etM:0,group:null,home:'TBC (M93 Winner)',away:'TBC (M94 Winner)',homeFlag:null,awayFlag:null,venue:'SoFi Stadium, Inglewood',stage:'Quarter-Final'},
+  {apiId:99,date:'2026-07-11',etH:17,etM:0,group:null,home:'TBC (M91 Winner)',away:'TBC (M92 Winner)',homeFlag:null,awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Quarter-Final'},
+  {apiId:100,date:'2026-07-11',etH:21,etM:0,group:null,home:'TBC (M95 Winner)',away:'TBC (M96 Winner)',homeFlag:null,awayFlag:null,venue:'Arrowhead Stadium, Kansas City',stage:'Quarter-Final'},
 
-  // Semi-Finals — all teams TBC (depend on Quarter-Final results, July 11)
-  {apiId:537387,date:'2026-07-14',etH:15,etM:0,group:null,home:'TBC (QF 1 Winner)',away:'TBC (QF 2 Winner)',homeFlag:null,awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Semi-Final'},
-  {apiId:537388,date:'2026-07-15',etH:15,etM:0,group:null,home:'TBC (QF 3 Winner)',away:'TBC (QF 4 Winner)',homeFlag:null,awayFlag:null,venue:'Mercedes-Benz Stadium, Atlanta',stage:'Semi-Final'},
+  // Semi-Finals
+  {apiId:101,date:'2026-07-14',etH:15,etM:0,group:null,home:'TBC (M97 Winner)',away:'TBC (M98 Winner)',homeFlag:null,awayFlag:null,venue:'AT&T Stadium, Arlington',stage:'Semi-Final'},
+  {apiId:102,date:'2026-07-15',etH:15,etM:0,group:null,home:'TBC (M99 Winner)',away:'TBC (M100 Winner)',homeFlag:null,awayFlag:null,venue:'Mercedes-Benz Stadium, Atlanta',stage:'Semi-Final'},
 
-  // Third Place & Final — all teams TBC (depend on Semi-Final results, July 14-15)
-  {apiId:537389,date:'2026-07-18',etH:17,etM:0,group:null,home:'TBC (SF 1 Loser)',away:'TBC (SF 2 Loser)',homeFlag:null,awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Third Place'},
-  {apiId:537390,date:'2026-07-19',etH:15,etM:0,group:null,home:'TBC (SF 1 Winner)',away:'TBC (SF 2 Winner)',homeFlag:null,awayFlag:null,venue:'MetLife Stadium, East Rutherford',stage:'Final'},
+  // Third Place & Final
+  {apiId:103,date:'2026-07-18',etH:17,etM:0,group:null,home:'TBC (M101 Loser)',away:'TBC (M102 Loser)',homeFlag:null,awayFlag:null,venue:'Hard Rock Stadium, Miami Gardens',stage:'Third Place'},
+  {apiId:104,date:'2026-07-19',etH:15,etM:0,group:null,home:'TBC (M101 Winner)',away:'TBC (M102 Winner)',homeFlag:null,awayFlag:null,venue:'MetLife Stadium, East Rutherford',stage:'Final'},
 ];
 
 // Key players (notable squad members per team)
@@ -3177,6 +3186,15 @@ const KNOWN_RESULTS = [
   // Jun 27 — Group K final round (confirmed via Yahoo Sports / Wikipedia)
   { home:'Colombia',      away:'Portugal',            hs:0, as:0 },
   { home:'DR Congo',      away:'Uzbekistan',          hs:3, as:1 },
+  // Jun 28-29 — Round of 32 (confirmed via ESPN/Sky Sports bracket).
+  // Matches decided on penalties are recorded using the penalty-shootout
+  // score (not the regulation/AET score) so the winner is unambiguous for
+  // the auto-advance logic, matching how ESPN's own bracket displays it
+  // e.g. "1 (3) - 1 (4)" -> recorded here as 3-4.
+  { home:'South Africa',  away:'Canada',              hs:0, as:1 },
+  { home:'Brazil',        away:'Japan',               hs:2, as:1 },
+  { home:'Germany',       away:'Paraguay',            hs:3, as:4 }, // AET 1-1, pens 3-4
+  { home:'Netherlands',   away:'Morocco',             hs:2, as:3 }, // 1-1 AET, Morocco won 3-2 on penalties (confirmed via Al Jazeera)
 ];
 // Last verified: 20 June 2026 ~07:00 AEST — confirmed final via FIFA match centre.
 // Türkiye 0-1 Paraguay (Galarza 2') — Türkiye eliminated from the tournament.
@@ -3436,6 +3454,7 @@ function computeStandingsFromScores() {
   });
 
   resolveKnockoutSlotsFromStandings();
+  advanceKnockoutWinners();
 }
 
 // ─── AUTO-RESOLVE TBC SLOTS FROM COMPLETED GROUPS ────────────────────────────
@@ -3473,6 +3492,52 @@ function resolveKnockoutSlotsFromStandings() {
   });
 }
 
+// ─── AUTO-ADVANCE WINNERS BETWEEN KNOCKOUT ROUNDS ────────────────────────────
+// Once a knockout match finishes, its winner needs to be written into
+// whichever next-round slot was waiting on it (e.g. "TBC (R32 Match 1
+// Winner)" becomes the real team name). This walks every knockout stage in
+// order and, for any finished match, finds and fills the matching TBC
+// placeholder in the next round — purely from match results already in
+// liveState, no external lookups needed.
+function advanceKnockoutWinners() {
+  var stageOrder = ['Round of 32', 'Round of 16', 'Quarter-Final', 'Semi-Final'];
+
+  stageOrder.forEach(function(stageKey) {
+    var matches = ALL_FIXTURES.filter(function(f){ return f.stage === stageKey; });
+
+    matches.forEach(function(fx) {
+      var ls = getLiveScore(fx.home, fx.away);
+      if (!ls || ls.status !== 'FINISHED' || ls.homeScore === null) return;
+      if (fx.home.indexOf('TBC') === 0 || fx.away.indexOf('TBC') === 0) return; // not fully resolved yet, can't determine winner
+
+      // Determine the winner, accounting for extra time / penalties already
+      // folded into homeScore/awayScore by the live API, and handling draws
+      // (which can't happen in a knockout match once full-time decided —
+      // if scores are level, this is genuinely still in progress toward
+      // penalties and we should NOT advance anyone yet)
+      var isHomeOriented = ls.home === fx.home;
+      var homeScore = isHomeOriented ? ls.homeScore : ls.awayScore;
+      var awayScore = isHomeOriented ? ls.awayScore : ls.homeScore;
+      if (homeScore === awayScore) return; // still level — not actually decided
+
+      var winner = homeScore > awayScore ? fx.home : fx.away;
+      var loser = homeScore > awayScore ? fx.away : fx.home;
+      // fx.apiId IS the real FIFA match number (73-104) — no separate
+      // numbering scheme needed, so this can never drift out of sync with
+      // the TBC labels the way a self-invented sequence could.
+      var winnerTag2 = 'TBC (M' + fx.apiId + ' Winner)';
+      var loserTag = 'TBC (M' + fx.apiId + ' Loser)';
+
+      ALL_FIXTURES.forEach(function(nextFx) {
+        if (nextFx.home === winnerTag2) { nextFx.home = winner; nextFx.homeFlag = FLAG_MAP[winner] || null; }
+        if (nextFx.away === winnerTag2) { nextFx.away = winner; nextFx.awayFlag = FLAG_MAP[winner] || null; }
+        if (nextFx.home === loserTag) { nextFx.home = loser; nextFx.homeFlag = FLAG_MAP[loser] || null; }
+        if (nextFx.away === loserTag) { nextFx.away = loser; nextFx.awayFlag = FLAG_MAP[loser] || null; }
+      });
+    });
+  });
+}
+
 // ─── GET LIVE SCORE ──────────────────────────────────────────────────────────
 function getLiveScore(home, away) {
   return liveState.liveScores[home+'|'+away] || liveState.liveScores[away+'|'+home] || null;
@@ -3486,6 +3551,10 @@ function applyLiveDataToUI() {
   renderGroups();
   updateNextMatch();
   renderLiveMatchWidget();
+  var bracketPanel = document.getElementById('panel-bracket');
+  if (bracketPanel && bracketPanel.classList.contains('active')) {
+    renderKnockoutBracket();
+  }
 }
 
 // ─── TOURNAMENT PULSE STRIP ───────────────────────────────────────────────────
@@ -3769,14 +3838,6 @@ function renderKnockoutBracket() {
   var el = document.getElementById('bracket-tree');
   if (!el) return;
 
-  var stages = [
-    { key: 'Round of 32',  label: 'Round of 32',   short: 'R32' },
-    { key: 'Round of 16',  label: 'Round of 16',   short: 'R16' },
-    { key: 'Quarter-Final', label: 'Quarter-Finals', short: 'QF' },
-    { key: 'Semi-Final',   label: 'Semi-Finals',   short: 'SF' },
-    { key: 'Final',        label: 'Final',         short: 'FINAL' },
-  ];
-
   function matchStatusInfo(fx) {
     var ls = getLiveScore(fx.home, fx.away);
     if (ls && ls.status === 'FINISHED') return { status: 'finished', score: ls };
@@ -3784,13 +3845,13 @@ function renderKnockoutBracket() {
     return { status: 'upcoming', score: null };
   }
 
-  function teamRowHtml(team, flag, score, isWinner) {
+  function teamRowHtml(team, score, isWinner) {
     var isTbc = team.indexOf('TBC') === 0;
     if (isTbc) {
-      // Shorten long TBC descriptions so cards don't overflow
-      var shortText = team.replace('TBC (', '').replace(')', '');
+      var isLoserSlot = team.indexOf('Loser') > -1;
+      var placeholderText = isLoserSlot ? 'TBD' : 'TBD';
       return '<div class="bracket-team tbc"><span class="bt-flag">' + tf('', 14) + '</span>' +
-             '<span class="bt-name">' + shortText + '</span></div>';
+             '<span class="bt-name">' + placeholderText + '</span></div>';
     }
     var flagHtml = tf(team, 16);
     var scoreHtml = score !== null ? '<span class="bt-score">' + score + '</span>' : '';
@@ -3799,7 +3860,7 @@ function renderKnockoutBracket() {
            '<span class="bt-name">' + team + '</span>' + scoreHtml + '</div>';
   }
 
-  function buildMatchHtml(fx, matchNumber, stageShort) {
+  function buildMatchHtml(fx) {
     var info = matchStatusInfo(fx);
     var homeScore = null, awayScore = null, homeWin = false, awayWin = false;
     if (info.score) {
@@ -3817,36 +3878,71 @@ function renderKnockoutBracket() {
         ? '<div class="bracket-match-status live">LIVE</div>'
         : '';
     var dateStr = fx.aestDate ? fx.aestDate : '';
-    return '<div class="bracket-match-group"><div class="bracket-match' + (info.status==='finished'?' has-winner':'') + '" data-match="' + stageShort + matchNumber + '">' +
+    return '<div class="bracket-match-group"><div class="bracket-match' + (info.status==='finished'?' has-winner':'') + '">' +
       statusBadge +
-      teamRowHtml(fx.home, fx.homeFlag, homeScore, homeWin) +
+      teamRowHtml(fx.home, homeScore, homeWin) +
       '<div class="bracket-vs-divider"></div>' +
-      teamRowHtml(fx.away, fx.awayFlag, awayScore, awayWin) +
+      teamRowHtml(fx.away, awayScore, awayWin) +
       '<div class="bracket-match-meta">' + dateStr + (fx.aestTime ? ' · ' + fx.aestTime + ' AEST' : '') + '</div>' +
     '</div></div>';
   }
 
-  var html = '';
-  stages.forEach(function(stage, idx) {
-    var matches = ALL_FIXTURES.filter(function(f){ return f.stage === stage.key; });
-    if (matches.length === 0) return;
-    // Keep original array order (already correctly seeded as Match 1, 2, 3...)
-    html += '<div class="bracket-round">';
-    html += '<div class="bracket-round-label">' + stage.label + '</div>';
-    if (matches[0].aestDate) {
-      html += '<div class="bracket-round-date">From ' + matches[0].aestDate + '</div>';
+  function getStageMatches(stageKey) {
+    return ALL_FIXTURES.filter(function(f){ return f.stage === stageKey; });
+  }
+
+  var r32 = getStageMatches('Round of 32');
+  var r16 = getStageMatches('Round of 16');
+  var qf  = getStageMatches('Quarter-Final');
+  var sf  = getStageMatches('Semi-Final');
+  var final = getStageMatches('Final');
+
+  function findByApiId(matches, id) {
+    return matches.find(function(f){ return f.apiId === id; });
+  }
+
+  function buildColumnByIds(label, matches, ids) {
+    var html = '<div class="bracket-round"><div class="bracket-round-label">' + label + '</div>';
+    var firstMatch = findByApiId(matches, ids[0]);
+    if (firstMatch && firstMatch.aestDate) {
+      html += '<div class="bracket-round-date">From ' + firstMatch.aestDate + '</div>';
     }
-    matches.forEach(function(fx, i) {
-      html += buildMatchHtml(fx, i + 1, stage.short);
+    ids.forEach(function(id) {
+      var fx = findByApiId(matches, id);
+      if (fx) html += buildMatchHtml(fx);
     });
     html += '</div>';
-  });
+    return html;
+  }
 
-  // Trophy column after the Final
-  html += '<div class="bracket-final-col"><div class="bracket-trophy-final">' +
-    '<div class="bt-emoji">🏆</div><div class="bt-label">WORLD<br>CHAMPION</div></div></div>';
+  // Left/right groupings verified directly against FIFA's official bracket
+  // (match numbers 73-104) — left half covers M73-M77, M89-M90, M97, M101;
+  // right half covers the mirrored other side, both converging at M104.
+  var leftHtml = '<div class="bracket-half bracket-half-left">';
+  leftHtml += buildColumnByIds('Round of 32', r32, [74, 77, 73, 75, 83, 84, 81, 82]);
+  leftHtml += buildColumnByIds('Round of 16', r16, [89, 90, 93, 94]);
+  leftHtml += buildColumnByIds('Quarter-Final', qf, [97, 98]);
+  leftHtml += buildColumnByIds('Semi-Final', sf, [101]);
+  leftHtml += '</div>';
 
-  el.innerHTML = html;
+  // CENTER: trophy above the Final, vertically centered to align with
+  // both Semi-Final cards on either side
+  var centerHtml = '<div class="bracket-final-col">';
+  centerHtml += '<div class="bracket-trophy-final"><div class="bt-emoji">🏆</div><div class="bt-label">WORLD<br>CHAMPION</div></div>';
+  if (final[0]) centerHtml += buildMatchHtml(final[0]);
+  centerHtml += '</div>';
+
+  // RIGHT HALF — built in SF→QF→R16→R32 document order, then visually
+  // flipped via row-reverse so R32 lands on the outer right edge and
+  // converges inward toward the Final, mirroring the left side.
+  var rightHtml = '<div class="bracket-half bracket-half-right">';
+  rightHtml += buildColumnByIds('Semi-Final', sf, [102]);
+  rightHtml += buildColumnByIds('Quarter-Final', qf, [99, 100]);
+  rightHtml += buildColumnByIds('Round of 16', r16, [91, 92, 95, 96]);
+  rightHtml += buildColumnByIds('Round of 32', r32, [76, 78, 79, 80, 86, 88, 85, 87]);
+  rightHtml += '</div>';
+
+  el.innerHTML = leftHtml + centerHtml + rightHtml;
 
   var subtitle = document.getElementById('bracket-subtitle');
   if (subtitle) {
@@ -4354,6 +4450,12 @@ async function autoRefreshResults() {
   renderLiveMatchWidget();
   updateStatCards();
   updatePulseStrip();
+  // Only re-render the bracket if its tab is actually visible right now —
+  // no point recomputing it in the background if the user isn't looking
+  var bracketPanel = document.getElementById('panel-bracket');
+  if (bracketPanel && bracketPanel.classList.contains('active')) {
+    renderKnockoutBracket();
+  }
   const el = document.getElementById('api-last-updated');
   const t = new Date().toLocaleTimeString('en-AU', {hour:'2-digit', minute:'2-digit'});
   if (el) el.textContent = 'Auto-updated ' + t;
