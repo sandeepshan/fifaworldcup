@@ -1465,7 +1465,7 @@
     -webkit-overflow-scrolling: touch;
   }
   .bracket-tree {
-    display: flex; gap: 0; min-width: 1500px; padding: 8px 4px 24px;
+    display: flex; gap: 0; min-width: 1350px; padding: 8px 4px 24px;
     align-items: stretch;
   }
   .bracket-half {
@@ -1473,7 +1473,7 @@
   }
   .bracket-round {
     display: flex; flex-direction: column; justify-content: space-around;
-    min-width: 170px; flex-shrink: 0; position: relative;
+    min-width: 150px; flex-shrink: 0; position: relative;
   }
   .bracket-round-label {
     text-align: center; font-size: 10px; text-transform: uppercase;
@@ -1491,9 +1491,9 @@
   }
   .bracket-match {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 6px; padding: 6px 8px; margin: 4px 8px;
+    border-radius: 6px; padding: 5px 7px; margin: 3px 6px;
     position: relative; transition: border-color 0.15s;
-    min-height: 44px; display: flex; flex-direction: column; justify-content: center;
+    min-height: 38px; display: flex; flex-direction: column; justify-content: center;
   }
   .bracket-match:hover { border-color: var(--gold2); }
   .bracket-match.has-winner { border-color: rgba(240,192,64,0.4); }
@@ -1527,16 +1527,15 @@
     width: 28px; flex-shrink: 0; position: relative;
   }
   .bracket-final-col {
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    min-width: 170px; flex-shrink: 0; gap: 6px;
+    min-width: 150px;
   }
   .bracket-trophy-final {
-    text-align: center; padding: 10px 8px;
+    text-align: center; padding: 6px 4px 10px;
   }
-  .bracket-trophy-final .bt-emoji { font-size: 26px; }
+  .bracket-trophy-final .bt-emoji { font-size: 22px; }
   .bracket-trophy-final .bt-label {
-    font-family: 'Bebas Neue', cursive; font-size: 13px; color: var(--gold);
-    letter-spacing: 1px; margin-top: 4px;
+    font-family: 'Bebas Neue', cursive; font-size: 11px; color: var(--gold);
+    letter-spacing: 1px; margin-top: 2px;
   }
 
   /* ════════════════════════════════════════════════════════════════════
@@ -3194,7 +3193,13 @@ const KNOWN_RESULTS = [
   { home:'South Africa',  away:'Canada',              hs:0, as:1 },
   { home:'Brazil',        away:'Japan',               hs:2, as:1 },
   { home:'Germany',       away:'Paraguay',            hs:3, as:4 }, // AET 1-1, pens 3-4
-  { home:'Netherlands',   away:'Morocco',             hs:2, as:3 }, // 1-1 AET, Morocco won 3-2 on penalties (confirmed via Al Jazeera)
+  { home:'Netherlands',   away:'Morocco',             hs:2, as:3 }, // 1-1 AET, Morocco won 3-2 on penalties
+  { home:'Ivory Coast',   away:'Norway',              hs:1, as:2 },
+  { home:'France',        away:'Sweden',              hs:3, as:0 },
+  { home:'Mexico',        away:'Ecuador',             hs:2, as:0 },
+  { home:'England',       away:'DR Congo',            hs:2, as:1 },
+  { home:'Belgium',       away:'Senegal',             hs:3, as:2 }, // AET, Belgium comeback
+  { home:'United States', away:'Bosnia & Herz.',      hs:2, as:0 },
 ];
 // Last verified: 20 June 2026 ~07:00 AEST — confirmed final via FIFA match centre.
 // Türkiye 0-1 Paraguay (Galarza 2') — Türkiye eliminated from the tournament.
@@ -3814,9 +3819,7 @@ function renderTopScorers() {
 
   var html = scorers.map(function(s, i) {
     var topClass = i < 3 ? ' top3' : '';
-    var assistsHtml = (s.assists !== null && s.assists !== undefined)
-      ? '<div class="scorer-stat"><div class="scorer-stat-val muted">' + s.assists + '</div><div class="scorer-stat-lbl">Assists</div></div>'
-      : '';
+    var assistsHtml = '<div class="scorer-stat"><div class="scorer-stat-val muted">' + (s.assists !== null && s.assists !== undefined ? s.assists : 0) + '</div><div class="scorer-stat-lbl">Assists</div></div>';
     return '<div class="scorer-row' + topClass + '">' +
       '<div class="scorer-rank">' + (i + 1) + '</div>' +
       '<div class="scorer-info">' + tf(s.team, 22) +
@@ -3925,10 +3928,11 @@ function renderKnockoutBracket() {
   leftHtml += buildColumnByIds('Semi-Final', sf, [101]);
   leftHtml += '</div>';
 
-  // CENTER: trophy above the Final, vertically centered to align with
-  // both Semi-Final cards on either side
-  var centerHtml = '<div class="bracket-final-col">';
-  centerHtml += '<div class="bracket-trophy-final"><div class="bt-emoji">🏆</div><div class="bt-label">WORLD<br>CHAMPION</div></div>';
+  // CENTER: trophy on top, Final match below, using bracket-round structure
+  // so it inherits the same flex sizing as the SF columns on either side
+  var centerHtml = '<div class="bracket-round bracket-final-col">';
+  centerHtml += '<div class="bracket-round-label">FINAL</div>';
+  centerHtml += '<div class="bracket-trophy-final"><div class="bt-emoji">🏆</div><div class="bt-label">WORLD CHAMPION</div></div>';
   if (final[0]) centerHtml += buildMatchHtml(final[0]);
   centerHtml += '</div>';
 
@@ -3946,11 +3950,13 @@ function renderKnockoutBracket() {
 
   var subtitle = document.getElementById('bracket-subtitle');
   if (subtitle) {
-    var confirmedCount = ALL_FIXTURES.filter(function(f){
-      return f.stage !== 'Group' && f.home.indexOf('TBC') !== 0 && f.away.indexOf('TBC') !== 0;
+    var finishedCount = ALL_FIXTURES.filter(function(f){
+      if (f.stage === 'Group') return false;
+      var ls = getLiveScore(f.home, f.away);
+      return ls && ls.status === 'FINISHED';
     }).length;
-    var totalKnockout = ALL_FIXTURES.filter(function(f){ return f.stage !== 'Group'; }).length;
-    subtitle.textContent = confirmedCount + ' of ' + totalKnockout + ' knockout matches fully confirmed · updates automatically as groups finish';
+    var totalR32 = ALL_FIXTURES.filter(function(f){ return f.stage === 'Round of 32'; }).length;
+    subtitle.textContent = finishedCount + ' of ' + totalR32 + ' Round of 32 matches finished · bracket updates automatically';
   }
 }
 
