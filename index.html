@@ -1734,6 +1734,7 @@
   <div class="tab" onclick="switchTab('groups')">🏆 Groups & Standings</div>
   <div class="tab" onclick="switchTab('bracket')">🌳 Knockout Bracket</div>
   <div class="tab" onclick="switchTab('scorers')">⚽ Top Scorers</div>
+  <div class="tab" onclick="switchTab('power')">⚡ Power Rankings</div>
   <div class="tab" onclick="switchTab('performers')">🏆 Hall of Fame</div>
   <div class="tab" onclick="switchTab('simulator')">🎮 Tournament Simulator</div>
 </div>
@@ -1843,6 +1844,15 @@
       <div class="scorers-subtitle" id="scorers-subtitle">Live top scorers, updated automatically</div>
     </div>
     <div id="scorers-content"></div>
+  </div>
+
+    <!-- POWER RANKINGS PANEL -->
+  <div class="panel" id="panel-power">
+    <div class="scorers-header">
+      <div class="scorers-title">⚡ Power Rankings</div>
+      <div class="scorers-subtitle" id="power-subtitle">Teams ranked by tournament form, goals, and FIFA quality — updates with every result</div>
+    </div>
+    <div id="power-content"></div>
   </div>
 
     <!-- HALL OF FAME PANEL -->
@@ -2307,6 +2317,7 @@ function switchTab(tab) {
   if (tab === 'simulator') showSimGroup(simState.currentGroup);
   if (tab === 'bracket') renderKnockoutBracket();
   if (tab === 'scorers') renderTopScorers();
+  if (tab === 'power') renderPowerRankings();
 }
 
 // =============================================
@@ -3200,6 +3211,26 @@ const KNOWN_RESULTS = [
   { home:'England',       away:'DR Congo',            hs:2, as:1 },
   { home:'Belgium',       away:'Senegal',             hs:3, as:2 }, // AET, Belgium comeback
   { home:'United States', away:'Bosnia & Herz.',      hs:2, as:0 },
+  // Jul 2-3 — Round of 32, final 6 matches (confirmed via Yahoo Sports, Sky Sports, Wikipedia)
+  { home:'Spain',         away:'Austria',             hs:3, as:0 },
+  { home:'Portugal',      away:'Croatia',             hs:2, as:1 },
+  { home:'Switzerland',   away:'Algeria',             hs:2, as:0 },
+  { home:'Australia',     away:'Egypt',               hs:1, as:2 }, // 1-1 AET, Egypt wins 4-2 pens
+  { home:'Argentina',     away:'Cape Verde',          hs:3, as:2 }, // 1-1 90 min, AET
+  { home:'Colombia',      away:'Ghana',               hs:1, as:0 },
+  // Jul 4-6 — Round of 16 (confirmed via CBS Sports, Sky Sports, Yahoo Sports, Fox Sports)
+  // R16 M90: Canada(M73) vs Morocco(M75) — Morocco wins
+  { home:'Canada',        away:'Morocco',             hs:0, as:3 },
+  // R16 M89: Paraguay(M74) vs France(M77) — France wins
+  { home:'Paraguay',      away:'France',              hs:0, as:1 },
+  // R16 M91: Brazil(M76) vs Norway(M78) — Norway wins (huge upset: Haaland scores)
+  { home:'Brazil',        away:'Norway',              hs:1, as:2 },
+  // R16 M92: Mexico(M79) vs England(M80) — England wins 3-2
+  { home:'Mexico',        away:'England',             hs:2, as:3 },
+  // R16 M93: Portugal(M83) vs Spain(M84) — Spain wins
+  { home:'Portugal',      away:'Spain',               hs:0, as:1 },
+  // R16 M94: USA(M81) vs Belgium(M82) — Belgium wins 4-1
+  { home:'United States', away:'Belgium',             hs:1, as:4 },
 ];
 // Last verified: 20 June 2026 ~07:00 AEST — confirmed final via FIFA match centre.
 // Türkiye 0-1 Paraguay (Galarza 2') — Türkiye eliminated from the tournament.
@@ -3560,6 +3591,10 @@ function applyLiveDataToUI() {
   if (bracketPanel && bracketPanel.classList.contains('active')) {
     renderKnockoutBracket();
   }
+  var powerPanel2 = document.getElementById('panel-power');
+  if (powerPanel2 && powerPanel2.classList.contains('active')) {
+    renderPowerRankings();
+  }
 }
 
 // ─── TOURNAMENT PULSE STRIP ───────────────────────────────────────────────────
@@ -3801,6 +3836,121 @@ let hofActiveFilter = 'all';
 // =============================================
 // TOP SCORERS — clean, simple table (Player, Team, Goals, Assists, Played)
 // =============================================
+// =============================================
+// POWER RANKINGS
+// =============================================
+function computeTeamStats() {
+  // Build stats for every team from all finished matches in liveState
+  var stats = {};
+  function getOrCreate(team) {
+    if (!stats[team]) stats[team] = { p:0, w:0, d:0, l:0, gf:0, ga:0 };
+    return stats[team];
+  }
+  ALL_FIXTURES.filter(function(f){ return f.stage === 'Group' || f.stage === 'Round of 32'; })
+    .forEach(function(f) {
+      var ls = getLiveScore(f.home, f.away);
+      if (!ls || ls.status !== 'FINISHED' || ls.homeScore === null) return;
+      var isHomeOriented = ls.home === f.home;
+      var hs = isHomeOriented ? ls.homeScore : ls.awayScore;
+      var as_ = isHomeOriented ? ls.awayScore : ls.homeScore;
+      var h = getOrCreate(f.home), a = getOrCreate(f.away);
+      h.p++; h.gf += hs; h.ga += as_;
+      a.p++; a.gf += as_; a.ga += hs;
+      if (hs > as_) { h.w++; a.l++; }
+      else if (hs < as_) { a.w++; h.l++; }
+      else { h.d++; a.d++; }
+    });
+  return stats;
+}
+
+function powerScore(team, stats) {
+  var s = stats[team];
+  if (!s || s.p === 0) return 0;
+  var gd = s.gf - s.ga;
+  var winRate = (s.w + 0.33 * s.d) / s.p;
+  var gdPerGame = gd / s.p;
+  var gfPerGame = s.gf / s.p;
+  var rank = FIFA_RANK[team] || 50;
+  var rankBonus = Math.max(0, (52 - rank) / 51);
+  return Math.round((winRate * 40) + (gdPerGame * 15) + (gfPerGame * 10) + (rankBonus * 35));
+}
+
+function renderPowerRankings() {
+  var el = document.getElementById('power-content');
+  var subtitle = document.getElementById('power-subtitle');
+  if (!el) return;
+
+  var stats = computeTeamStats();
+
+  // Only rank teams still in the tournament (in the knockout bracket)
+  var remaining = ALL_FIXTURES
+    .filter(function(f){ return f.stage === 'Round of 16' || f.stage === 'Quarter-Final' || f.stage === 'Semi-Final' || f.stage === 'Final'; })
+    .reduce(function(acc, f) {
+      if (f.home && f.home.indexOf('TBC') !== 0) acc.add(f.home);
+      if (f.away && f.away.indexOf('TBC') !== 0) acc.add(f.away);
+      return acc;
+    }, new Set());
+
+  // Also include R32 teams that haven't played R16 yet
+  ALL_FIXTURES
+    .filter(function(f){ return f.stage === 'Round of 32'; })
+    .forEach(function(f) {
+      var ls = getLiveScore(f.home, f.away);
+      if (ls && ls.status === 'FINISHED') {
+        var hs = ls.home === f.home ? ls.homeScore : ls.awayScore;
+        var as_ = ls.home === f.home ? ls.awayScore : ls.homeScore;
+        var winner = hs > as_ ? f.home : f.away;
+        remaining.add(winner);
+      } else if (!ls || ls.status !== 'FINISHED') {
+        if (f.home.indexOf('TBC') !== 0) remaining.add(f.home);
+        if (f.away.indexOf('TBC') !== 0) remaining.add(f.away);
+      }
+    });
+
+  var teams = Array.from(remaining)
+    .map(function(team) { return { team: team, score: powerScore(team, stats), stats: stats[team] || {} }; })
+    .filter(function(t) { return t.stats.p > 0; })
+    .sort(function(a, b) { return b.score - a.score; });
+
+  if (teams.length === 0) {
+    el.innerHTML = '<div class="scorers-empty"><div class="se-icon">⚡</div>Rankings will appear once matches are played.</div>';
+    return;
+  }
+
+  var medals = ['🥇','🥈','🥉'];
+  var html = teams.map(function(t, i) {
+    var s = t.stats;
+    var gd = (s.gf||0) - (s.ga||0);
+    var rank = FIFA_RANK[t.team] || '?';
+    var topClass = i < 3 ? ' top3' : '';
+    var gdColor = gd > 0 ? 'var(--green)' : gd < 0 ? 'var(--red)' : 'var(--muted)';
+    var formDots = '';
+    // Simple form indicator based on win rate
+    var winPct = s.p > 0 ? Math.round(((s.w||0) / s.p) * 100) : 0;
+    var formColor = winPct >= 75 ? 'var(--green)' : winPct >= 50 ? 'var(--gold2)' : 'var(--muted)';
+
+    return '<div class="scorer-row' + topClass + '" style="align-items:center">' +
+      '<div class="scorer-rank">' + (i < 3 ? medals[i] : (i+1)) + '</div>' +
+      '<div class="scorer-info">' +
+        tf(t.team, 22) +
+        '<div>' +
+          '<div class="scorer-name">' + t.team + '</div>' +
+          '<div class="scorer-team">FIFA #' + rank + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="scorer-stats">' +
+        '<div class="scorer-stat"><div class="scorer-stat-val">' + t.score + '</div><div class="scorer-stat-lbl">Score</div></div>' +
+        '<div class="scorer-stat"><div class="scorer-stat-val muted">' + (s.w||0) + '-' + (s.d||0) + '-' + (s.l||0) + '</div><div class="scorer-stat-lbl">W-D-L</div></div>' +
+        '<div class="scorer-stat"><div class="scorer-stat-val" style="color:' + gdColor + '">' + (gd > 0 ? '+' : '') + gd + '</div><div class="scorer-stat-lbl">Goal Diff</div></div>' +
+        '<div class="scorer-stat"><div class="scorer-stat-val muted">' + (s.gf||0) + '</div><div class="scorer-stat-lbl">Goals</div></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML = html;
+  if (subtitle) subtitle.textContent = 'Ranked by form, goals and FIFA quality · ' + teams.length + ' remaining teams · updates with every result';
+}
+
 function renderTopScorers() {
   var el = document.getElementById('scorers-content');
   var subtitle = document.getElementById('scorers-subtitle');
@@ -4050,12 +4200,12 @@ function renderHofNations() {
 // =============================================
 
 const ASKME_SUGGESTIONS = [
-  'When does Brazil play next?',
-  "What's Argentina's record?",
-  'Show Group C standings',
-  'Who is in Group F?',
-  'Last result for Germany',
-  "How is Mexico doing?",
+  'Who are the best teams left?',
+  'Who has been eliminated?',
+  'How many goals has France scored?',
+  'Who is still in the tournament?',
+  'Last result for Morocco',
+  'When does Canada play next?',
 ];
 
 function initAskMe() {
@@ -4224,6 +4374,71 @@ function askMeAnswer(q) {
     return answerHtml('⚔️ Player Comparison',
       '<p>Live player stats (goals, assists, ratings) aren\'t tracked in this dashboard — only team results and standings. ' +
       'Try asking about a team instead, like "What\'s Argentina\'s record?" or "When does France play next?"</p>');
+  }
+
+  // ── Power rankings / top team / remaining teams questions ──────────────
+  const asksRanking = lower.includes('rank') || lower.includes('best team') ||
+    lower.includes('strongest') || lower.includes('top team') || lower.includes('power');
+  const asksRemaining = lower.includes('remain') || lower.includes('still in') ||
+    lower.includes('left in') || lower.includes('who is left') || lower.includes('who\'s left');
+  const asksEliminated = lower.includes('eliminat') || lower.includes('knocked out') ||
+    lower.includes('out of the tournament');
+  const asksForm = lower.includes('form') || lower.includes('in form') || lower.includes('on form');
+
+  if (asksRanking && !team) {
+    const stats = computeTeamStats();
+    const remaining = new Set();
+    ALL_FIXTURES.filter(f => f.stage === 'Round of 32' || f.stage === 'Round of 16' || f.stage === 'Quarter-Final').forEach(f => {
+      if (f.home && f.home.indexOf('TBC') !== 0) remaining.add(f.home);
+      if (f.away && f.away.indexOf('TBC') !== 0) remaining.add(f.away);
+    });
+    const top5 = Array.from(remaining)
+      .filter(t => stats[t] && stats[t].p > 0)
+      .map(t => ({ team:t, score: powerScore(t, stats) }))
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 5);
+    const rows = top5.map((t,i) => '<tr><td>' + (i+1) + '. ' + tf(t.team,14) + ' ' + t.team + '</td><td><b>' + t.score + '</b></td></tr>').join('');
+    return answerHtml('⚡ Top 5 Power Rankings',
+      '<p>Based on form, goals scored, goal difference and FIFA ranking:</p>' +
+      '<table><tr><th>Team</th><th>Score</th></tr>' + rows + '</table>' +
+      '<p style="font-size:11px;color:var(--muted)">See the full ⚡ Power Rankings tab for all remaining teams.</p>');
+  }
+
+  if (asksRemaining) {
+    const rem = [];
+    ALL_FIXTURES.filter(f => f.stage === 'Round of 32').forEach(f => {
+      const ls = getLiveScore(f.home, f.away);
+      if (!ls || ls.status !== 'FINISHED') {
+        if (f.home && f.home.indexOf('TBC') !== 0) rem.push(f.home);
+        if (f.away && f.away.indexOf('TBC') !== 0) rem.push(f.away);
+      } else {
+        const hs = ls.home === f.home ? ls.homeScore : ls.awayScore;
+        const as_ = ls.home === f.home ? ls.awayScore : ls.homeScore;
+        rem.push(hs >= as_ ? f.home : f.away);
+      }
+    });
+    const unique = [...new Set(rem)].sort();
+    const flags = unique.map(t => tf(t,14) + ' ' + t).join(', ');
+    return answerHtml('🏆 ' + unique.length + ' Teams Remaining',
+      '<p>' + flags + '</p>');
+  }
+
+  if (asksEliminated && !team) {
+    // All teams that played in R32 and lost
+    const elim = [];
+    ALL_FIXTURES.filter(f => f.stage === 'Round of 32').forEach(f => {
+      const ls = getLiveScore(f.home, f.away);
+      if (ls && ls.status === 'FINISHED' && ls.homeScore !== null) {
+        const hs = ls.home === f.home ? ls.homeScore : ls.awayScore;
+        const as_ = ls.home === f.home ? ls.awayScore : ls.homeScore;
+        if (hs > as_) elim.push(f.away);
+        else if (as_ > hs) elim.push(f.home);
+      }
+    });
+    if (elim.length === 0) return answerHtml('🏆 Eliminations', '<p>No teams have been eliminated yet in the knockout stage.</p>');
+    const flags = elim.map(t => tf(t,14) + ' ' + t).join(', ');
+    return answerHtml('❌ ' + elim.length + ' Teams Eliminated',
+      '<p>' + flags + '</p>');
   }
 
   // ── Goal questions ── (checked early since "goals" can combine with a
@@ -4461,6 +4676,10 @@ async function autoRefreshResults() {
   var bracketPanel = document.getElementById('panel-bracket');
   if (bracketPanel && bracketPanel.classList.contains('active')) {
     renderKnockoutBracket();
+  }
+  var powerPanel = document.getElementById('panel-power');
+  if (powerPanel && powerPanel.classList.contains('active')) {
+    renderPowerRankings();
   }
   const el = document.getElementById('api-last-updated');
   const t = new Date().toLocaleTimeString('en-AU', {hour:'2-digit', minute:'2-digit'});
