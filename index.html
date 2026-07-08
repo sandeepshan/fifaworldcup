@@ -1759,7 +1759,7 @@
       <div class="api-config-inner">
         <div class="api-status-row">
           <div class="api-status-dot connected" id="api-status-dot"></div>
-          <span id="api-status-text" style="font-size:12px;color:var(--muted)">Auto-updating every 5 minutes</span><span id="data-version-badge" style="font-size:10px;color:var(--muted);margin-left:8px;opacity:0.6"></span>
+          <span id="api-status-text" style="font-size:12px;color:var(--muted)">Auto-updating every 5 minutes</span>
           <span style="font-size:10px;color:var(--muted);margin-left:6px" id="api-last-updated"></span>
         </div>
       </div>
@@ -3882,30 +3882,42 @@ function renderPowerRankings() {
 
   var stats = computeTeamStats();
 
-  // Only rank teams still in the tournament (in the knockout bracket)
-  var remaining = ALL_FIXTURES
-    .filter(function(f){ return f.stage === 'Round of 16' || f.stage === 'Quarter-Final' || f.stage === 'Semi-Final' || f.stage === 'Final'; })
-    .reduce(function(acc, f) {
-      if (f.home && f.home.indexOf('TBC') !== 0) acc.add(f.home);
-      if (f.away && f.away.indexOf('TBC') !== 0) acc.add(f.away);
-      return acc;
-    }, new Set());
+  // Find the most advanced stage that still has unfinished matches —
+  // those teams are the ones genuinely still in the tournament.
+  // Walk stages from latest to earliest and find the first one with
+  // at least one non-finished match.
+  var stageOrder = ['Semi-Final', 'Quarter-Final', 'Round of 16', 'Round of 32'];
+  var remaining = new Set();
 
-  // Also include R32 teams that haven't played R16 yet
-  ALL_FIXTURES
-    .filter(function(f){ return f.stage === 'Round of 32'; })
-    .forEach(function(f) {
+  for (var si = 0; si < stageOrder.length; si++) {
+    var stage = stageOrder[si];
+    var stageMatches = ALL_FIXTURES.filter(function(f){ return f.stage === stage; });
+    var unfinished = stageMatches.filter(function(f) {
       var ls = getLiveScore(f.home, f.away);
-      if (ls && ls.status === 'FINISHED') {
-        var hs = ls.home === f.home ? ls.homeScore : ls.awayScore;
-        var as_ = ls.home === f.home ? ls.awayScore : ls.homeScore;
-        var winner = hs > as_ ? f.home : f.away;
-        remaining.add(winner);
-      } else if (!ls || ls.status !== 'FINISHED') {
-        if (f.home.indexOf('TBC') !== 0) remaining.add(f.home);
-        if (f.away.indexOf('TBC') !== 0) remaining.add(f.away);
-      }
+      return !ls || ls.status !== 'FINISHED';
     });
+
+    if (unfinished.length > 0 || stage === 'Round of 32') {
+      // Add teams from unfinished matches at this stage
+      unfinished.forEach(function(f) {
+        if (f.home && f.home.indexOf('TBC') !== 0) remaining.add(f.home);
+        if (f.away && f.away.indexOf('TBC') !== 0) remaining.add(f.away);
+      });
+      // Also add winners from finished matches at the same stage
+      // (they're still in — they just won to progress to the next round)
+      stageMatches.filter(function(f) {
+        var ls = getLiveScore(f.home, f.away);
+        return ls && ls.status === 'FINISHED';
+      }).forEach(function(f) {
+        var ls = getLiveScore(f.home, f.away);
+        var isHome = ls.home === f.home;
+        var hs = isHome ? ls.homeScore : ls.awayScore;
+        var as_ = isHome ? ls.awayScore : ls.homeScore;
+        remaining.add(hs >= as_ ? f.home : f.away);
+      });
+      break; // stop at the most advanced active stage
+    }
+  }
 
   var teams = Array.from(remaining)
     .map(function(team) { return { team: team, score: powerScore(team, stats), stats: stats[team] || {} }; })
@@ -4405,40 +4417,44 @@ function askMeAnswer(q) {
   }
 
   if (asksRemaining) {
-    const rem = [];
-    ALL_FIXTURES.filter(f => f.stage === 'Round of 32').forEach(f => {
-      const ls = getLiveScore(f.home, f.away);
-      if (!ls || ls.status !== 'FINISHED') {
-        if (f.home && f.home.indexOf('TBC') !== 0) rem.push(f.home);
-        if (f.away && f.away.indexOf('TBC') !== 0) rem.push(f.away);
-      } else {
-        const hs = ls.home === f.home ? ls.homeScore : ls.awayScore;
-        const as_ = ls.home === f.home ? ls.awayScore : ls.homeScore;
-        rem.push(hs >= as_ ? f.home : f.away);
+    const stageOrder2 = ['Semi-Final', 'Quarter-Final', 'Round of 16', 'Round of 32'];
+    const rem = new Set();
+    for (const stage of stageOrder2) {
+      const sm = ALL_FIXTURES.filter(f => f.stage === stage);
+      const uf = sm.filter(f => { const ls = getLiveScore(f.home, f.away); return !ls || ls.status !== 'FINISHED'; });
+      if (uf.length > 0 || stage === 'Round of 32') {
+        uf.forEach(f => { if (f.home && f.home.indexOf('TBC') !== 0) rem.add(f.home); if (f.away && f.away.indexOf('TBC') !== 0) rem.add(f.away); });
+        sm.filter(f => { const ls = getLiveScore(f.home, f.away); return ls && ls.status === 'FINISHED'; }).forEach(f => {
+          const ls = getLiveScore(f.home, f.away);
+          const isH = ls.home === f.home;
+          const hs = isH ? ls.homeScore : ls.awayScore;
+          const as_ = isH ? ls.awayScore : ls.homeScore;
+          rem.add(hs >= as_ ? f.home : f.away);
+        });
+        break;
       }
-    });
-    const unique = [...new Set(rem)].sort();
+    }
+    const unique = [...rem].sort();
     const flags = unique.map(t => tf(t,14) + ' ' + t).join(', ');
-    return answerHtml('🏆 ' + unique.length + ' Teams Remaining',
-      '<p>' + flags + '</p>');
+    return answerHtml('🏆 ' + unique.length + ' Teams Remaining', '<p>' + flags + '</p>');
   }
 
   if (asksEliminated && !team) {
-    // All teams that played in R32 and lost
     const elim = [];
-    ALL_FIXTURES.filter(f => f.stage === 'Round of 32').forEach(f => {
-      const ls = getLiveScore(f.home, f.away);
-      if (ls && ls.status === 'FINISHED' && ls.homeScore !== null) {
-        const hs = ls.home === f.home ? ls.homeScore : ls.awayScore;
-        const as_ = ls.home === f.home ? ls.awayScore : ls.homeScore;
-        if (hs > as_) elim.push(f.away);
-        else if (as_ > hs) elim.push(f.home);
-      }
+    ['Round of 32','Round of 16','Quarter-Final'].forEach(stage => {
+      ALL_FIXTURES.filter(f => f.stage === stage).forEach(f => {
+        const ls = getLiveScore(f.home, f.away);
+        if (ls && ls.status === 'FINISHED' && ls.homeScore !== null) {
+          const isH = ls.home === f.home;
+          const hs = isH ? ls.homeScore : ls.awayScore;
+          const as_ = isH ? ls.awayScore : ls.homeScore;
+          elim.push(hs > as_ ? f.away : f.home);
+        }
+      });
     });
     if (elim.length === 0) return answerHtml('🏆 Eliminations', '<p>No teams have been eliminated yet in the knockout stage.</p>');
     const flags = elim.map(t => tf(t,14) + ' ' + t).join(', ');
-    return answerHtml('❌ ' + elim.length + ' Teams Eliminated',
-      '<p>' + flags + '</p>');
+    return answerHtml('❌ ' + elim.length + ' Teams Eliminated', '<p>' + flags + '</p>');
   }
 
   // ── Goal questions ── (checked early since "goals" can combine with a
@@ -4597,12 +4613,6 @@ function askMeAnswer(q) {
 function init() {
   setupFixtureFilters();
   initAskMe();
-  // Show data freshness so it's obvious if a deployment is stale
-  var dvBadge = document.getElementById('data-version-badge');
-  if (dvBadge) {
-    var d = new Date(DATA_LAST_UPDATED);
-    dvBadge.textContent = '· Results data current as of ' + d.toLocaleDateString('en-AU', {day:'numeric',month:'short'}) + ' ' + d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
-  }
   // Seed known results immediately — standings + widget show on page load
   applyKnownResults();
   computeStandingsFromScores();
