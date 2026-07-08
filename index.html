@@ -3840,26 +3840,39 @@ let hofActiveFilter = 'all';
 // POWER RANKINGS
 // =============================================
 function computeTeamStats() {
-  // Build stats for every team from all finished matches in liveState
+  // Build stats from KNOWN_RESULTS first (always available, fully verified),
+  // then supplement with live API data for any matches not yet in KNOWN_RESULTS.
+  // Include ALL stages so R16/QF results count toward the power score.
   var stats = {};
   function getOrCreate(team) {
     if (!stats[team]) stats[team] = { p:0, w:0, d:0, l:0, gf:0, ga:0 };
     return stats[team];
   }
-  ALL_FIXTURES.filter(function(f){ return f.stage === 'Group' || f.stage === 'Round of 32'; })
-    .forEach(function(f) {
-      var ls = getLiveScore(f.home, f.away);
-      if (!ls || ls.status !== 'FINISHED' || ls.homeScore === null) return;
-      var isHomeOriented = ls.home === f.home;
-      var hs = isHomeOriented ? ls.homeScore : ls.awayScore;
-      var as_ = isHomeOriented ? ls.awayScore : ls.homeScore;
-      var h = getOrCreate(f.home), a = getOrCreate(f.away);
-      h.p++; h.gf += hs; h.ga += as_;
-      a.p++; a.gf += as_; a.ga += hs;
-      if (hs > as_) { h.w++; a.l++; }
-      else if (hs < as_) { a.w++; h.l++; }
-      else { h.d++; a.d++; }
-    });
+  function recordResult(home, away, hs, as_) {
+    if (home.indexOf('TBC') === 0 || away.indexOf('TBC') === 0) return;
+    var h = getOrCreate(home), a = getOrCreate(away);
+    h.p++; h.gf += hs; h.ga += as_;
+    a.p++; a.gf += as_; a.ga += hs;
+    if (hs > as_) { h.w++; a.l++; }
+    else if (hs < as_) { a.w++; h.l++; }
+    else { h.d++; a.d++; }
+  }
+
+  // Primary: walk all fixtures and get scores from getLiveScore (populated
+  // by both applyKnownResults AND parseServerlessData, so always up to date)
+  ALL_FIXTURES.filter(function(f){
+    return f.stage === 'Group' || f.stage === 'Round of 32' ||
+           f.stage === 'Round of 16' || f.stage === 'Quarter-Final' ||
+           f.stage === 'Semi-Final';
+  }).forEach(function(f) {
+    var ls = getLiveScore(f.home, f.away);
+    if (!ls || ls.status !== 'FINISHED' || ls.homeScore === null) return;
+    var isH = ls.home === f.home;
+    var hs = isH ? ls.homeScore : ls.awayScore;
+    var as_ = isH ? ls.awayScore : ls.homeScore;
+    recordResult(f.home, f.away, hs, as_);
+  });
+
   return stats;
 }
 
@@ -4370,6 +4383,12 @@ function askMeSubmit() {
   const answerEl = document.getElementById('askme-answer');
   const q = (input.value || '').trim();
   if (!q) return;
+
+  // Ensure liveState is fully populated before answering — this is a no-op
+  // if already called during init/refresh, but guarantees correct results
+  // even if the user clicks a chip before the first refresh cycle completes.
+  applyKnownResults();
+  computeStandingsFromScores();
 
   answerEl.style.display = 'block';
   answerEl.innerHTML = askMeAnswer(q);
