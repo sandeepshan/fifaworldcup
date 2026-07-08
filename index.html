@@ -3905,19 +3905,24 @@ function renderPowerRankings() {
   for (var si = 0; si < stageOrder.length; si++) {
     var stage = stageOrder[si];
     var stageMatches = ALL_FIXTURES.filter(function(f){ return f.stage === stage; });
+
+    // Skip stages where ALL matches are still TBC — no real teams yet
+    var hasRealTeams = stageMatches.some(function(f) {
+      return (f.home && f.home.indexOf('TBC') !== 0) ||
+             (f.away && f.away.indexOf('TBC') !== 0);
+    });
+    if (!hasRealTeams) continue;
+
     var unfinished = stageMatches.filter(function(f) {
       var ls = getLiveScore(f.home, f.away);
       return !ls || ls.status !== 'FINISHED';
     });
 
     if (unfinished.length > 0 || stage === 'Round of 32') {
-      // Add teams from unfinished matches at this stage
       unfinished.forEach(function(f) {
         if (f.home && f.home.indexOf('TBC') !== 0) remaining.add(f.home);
         if (f.away && f.away.indexOf('TBC') !== 0) remaining.add(f.away);
       });
-      // Also add winners from finished matches at the same stage
-      // (they're still in — they just won to progress to the next round)
       stageMatches.filter(function(f) {
         var ls = getLiveScore(f.home, f.away);
         return ls && ls.status === 'FINISHED';
@@ -4440,6 +4445,8 @@ function askMeAnswer(q) {
     const rem = new Set();
     for (const stage of stageOrder2) {
       const sm = ALL_FIXTURES.filter(f => f.stage === stage);
+      const hasReal = sm.some(f => (f.home && f.home.indexOf('TBC') !== 0) || (f.away && f.away.indexOf('TBC') !== 0));
+      if (!hasReal) continue;
       const uf = sm.filter(f => { const ls = getLiveScore(f.home, f.away); return !ls || ls.status !== 'FINISHED'; });
       if (uf.length > 0 || stage === 'Round of 32') {
         uf.forEach(f => { if (f.home && f.home.indexOf('TBC') !== 0) rem.add(f.home); if (f.away && f.away.indexOf('TBC') !== 0) rem.add(f.away); });
