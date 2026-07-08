@@ -2316,7 +2316,13 @@ function switchTab(tab) {
   if (tab === 'performers') renderHallOfFame();
   if (tab === 'simulator') showSimGroup(simState.currentGroup);
   if (tab === 'bracket') renderKnockoutBracket();
-  if (tab === 'scorers') renderTopScorers();
+  if (tab === 'scorers') {
+    renderTopScorers();
+    // If no scorers data yet, trigger an immediate background fetch
+    if (!liveState.topScorers || liveState.topScorers.length === 0) {
+      fetchLiveData();
+    }
+  }
   if (tab === 'power') renderPowerRankings();
 }
 
@@ -3595,6 +3601,10 @@ function applyLiveDataToUI() {
   if (powerPanel2 && powerPanel2.classList.contains('active')) {
     renderPowerRankings();
   }
+  var scorersPanel2 = document.getElementById('panel-scorers');
+  if (scorersPanel2 && scorersPanel2.classList.contains('active')) {
+    renderTopScorers();
+  }
 }
 
 // ─── TOURNAMENT PULSE STRIP ───────────────────────────────────────────────────
@@ -3993,7 +4003,7 @@ function renderTopScorers() {
       '<div class="se-icon">⚽</div>' +
       'Top scorers will appear here once available from the live data feed.' +
       '</div>';
-    if (subtitle) subtitle.textContent = 'No data yet — check back once group matches are underway';
+    if (subtitle) subtitle.textContent = 'Waiting for live data feed — data loads automatically every few minutes';
     return;
   }
 
@@ -4716,6 +4726,10 @@ async function autoRefreshResults() {
   var powerPanel = document.getElementById('panel-power');
   if (powerPanel && powerPanel.classList.contains('active')) {
     renderPowerRankings();
+  }
+  var scorersPanel = document.getElementById('panel-scorers');
+  if (scorersPanel && scorersPanel.classList.contains('active')) {
+    renderTopScorers();
   }
   const el = document.getElementById('api-last-updated');
   const t = new Date().toLocaleTimeString('en-AU', {hour:'2-digit', minute:'2-digit'});
